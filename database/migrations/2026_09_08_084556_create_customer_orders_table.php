@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('customer_orders', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('restaurant_table_id')->constrained()->onDelete('cascade');
+            $table->string('customer_name')->nullable();
+            $table->string('customer_phone')->nullable();
+            $table->text('customer_note')->nullable();
+            $table->decimal('total_amount',8,2);
+            $table->string('order_status')->default('pending');
+            $table->string('payment_status')->default('unpaid');
             $table->timestamps();
         });
     }
