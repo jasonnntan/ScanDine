@@ -22,7 +22,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// menu this dont understand
 Route::get('/order/{qr_token}', [OrderController::class, 'menu'])->name('order.menu');
+Route::post('/order/{qr_token}/add-to-cart', [OrderController::class, 'addToCart'])->name('order.addToCart');
 
 require __DIR__.'/auth.php';
 

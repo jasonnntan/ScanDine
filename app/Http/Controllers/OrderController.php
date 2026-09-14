@@ -18,4 +18,28 @@ class OrderController extends Controller
             'categories' => $categories,
         ]);
     }
+    //what to put inside the brackets - 2 rules: the label, and what to give back if is empty or not exist yet
+    //this also dont understand
+    public function addToCart(Request $request, $qr_token)
+{
+    $cart = session()->get('cart', []);
+
+    $foodItemId = $request->food_item_id;
+    $quantity = $request->quantity;
+
+    if (isset($cart[$foodItemId])) {
+        $cart[$foodItemId]['quantity'] += $quantity;
+    } else {
+        $foodItem = \App\Models\FoodItem::find($foodItemId);
+        $cart[$foodItemId] = [
+            'name' => $foodItem->name,
+            'price' => $foodItem->price,
+            'quantity' => $quantity,
+        ];
+    }
+
+    session()->put('cart', $cart);
+
+    return redirect()->route('order.menu', $qr_token)->with('success', 'Item added to cart!');
+}
 }
