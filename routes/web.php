@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
 // menu this dont understand
 Route::get('/order/{qr_token}', [OrderController::class, 'menu'])->name('order.menu');
 Route::post('/order/{qr_token}/add-to-cart', [OrderController::class, 'addToCart'])->name('order.addToCart');
+Route::get('/order/{qr_token}/cart', [OrderController::class,'viewCart'])->name('order.viewCart');
 
 require __DIR__.'/auth.php';
 
