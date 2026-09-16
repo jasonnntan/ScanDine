@@ -26,6 +26,8 @@ Route::middleware('auth')->group(function () {
 Route::get('/order/{qr_token}', [OrderController::class, 'menu'])->name('order.menu');
 Route::post('/order/{qr_token}/add-to-cart', [OrderController::class, 'addToCart'])->name('order.addToCart');
 Route::get('/order/{qr_token}/cart', [OrderController::class,'viewCart'])->name('order.viewCart');
+Route::post('/order/{qr_token}/checkout', [OrderController::class, 'placeOrder'])->name('order.placeOrder');
+Route::get('/order/confirmation/{orderId}', [OrderController::class, 'confirmation'])->name('order.confirmation');
 
 require __DIR__.'/auth.php';
 

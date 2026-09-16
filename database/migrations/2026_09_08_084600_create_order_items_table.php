@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_order_id')->constrained()->onDelete('cascade');
             $table->foreignId('food_item_id')->constrained()->onDelete('cascade');
-            $table->string('item_name_snaphot');
+            $table->string('item_name_snapshot');
             $table->decimal('unit_price',8,2);
             $table->unsignedInteger('quantity');
             $table->text('item_note')->nullable();

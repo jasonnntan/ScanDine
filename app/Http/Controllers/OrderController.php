@@ -63,5 +63,51 @@ class OrderController extends Controller
         ]);
     }
 
+    //
+    public function placeOrder(Request $request, $qr_token)
+{
+    $table = RestaurantTable::where('qr_token', $qr_token)->firstOrFail();
+    $cart = session()->get('cart', []);
+
+    $total = 0;
+    foreach ($cart as $item) {
+        $total += $item['price'] * $item['quantity'];
+    }
+
+    $order = \App\Models\CustomerOrder::create([
+        'restaurant_table_id' => $table->id,
+        'customer_name' => $request->customer_name,
+        'customer_phone' => $request->customer_phone,
+        'customer_note' => $request->customer_note,
+        'total_amount' => $total,
+        'order_status' => 'pending',
+        'payment_status' => 'unpaid',
+    ]);
+
+    foreach ($cart as $foodItemId => $item) {
+        \App\Models\OrderItem::create([
+            'customer_order_id' => $order->id,
+            'food_item_id' => $foodItemId,
+            'item_name_snapshot' => $item['name'],
+            'unit_price' => $item['price'],
+            'quantity' => $item['quantity'],
+
+        ]);
+    }
+
+    session()->forget('cart');
+
+    return redirect()->route('order.confirmation', $order->id)->with('success', 'Order placed successfully!');
+}
+
+public function confirmation($orderId)
+{
+    $order = \App\Models\CustomerOrder::with('orderItems')->findOrFail($orderId);
+
+    return view('order.confirmation', [
+        'order' => $order,
+    ]);
+}
+
 
 }

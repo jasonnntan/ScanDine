@@ -37,7 +37,7 @@ class FoodItemSeeder extends Seeder
         \App\Models\FoodItem::create([
             'category_id' => $desserts->id,
             'name' => 'Chendol',
-            'description' => 'Classic fried rice with egg',
+            'description' => 'Traditional dessert',
             'price' => '5.50',
             'unit_cost' => '2.00',
             'status' => 'out_of_stock',
