@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\StaffOrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -28,6 +29,12 @@ Route::post('/order/{qr_token}/add-to-cart', [OrderController::class, 'addToCart
 Route::get('/order/{qr_token}/cart', [OrderController::class,'viewCart'])->name('order.viewCart');
 Route::post('/order/{qr_token}/checkout', [OrderController::class, 'placeOrder'])->name('order.placeOrder');
 Route::get('/order/confirmation/{orderId}', [OrderController::class, 'confirmation'])->name('order.confirmation');
+
+
+Route::middleware(['auth', 'role:staff,manager,owner'])->group(function () {
+    Route::get('/staff/orders', [StaffOrderController::class, 'index'])->name('staff.orders.index');
+});
+
 
 require __DIR__.'/auth.php';
 
