@@ -15,4 +15,20 @@ class StaffOrderController extends Controller
             'orders' => $orders,
         ]);
     }
+
+    public function updateStatus(Request $request, $id)
+    {
+    $order = CustomerOrder::findOrFail($id);
+    $order->update(['order_status' => $request->order_status]);
+
+    return redirect()->route('staff.orders.index')->with('success', 'Order status updated!');
+    }
+
+    public function markPaid($id)
+    {
+    $order = CustomerOrder::findOrFail($id);
+    $order->update(['payment_status' => 'paid']);
+
+    return redirect()->route('staff.orders.index')->with('success', 'Order marked as paid!');
+    }
 }

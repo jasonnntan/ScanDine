@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\StaffOrderController;
+use App\Http\Controllers\FoodItemController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -35,6 +36,11 @@ Route::middleware(['auth', 'role:staff,manager,owner'])->group(function () {
     Route::get('/staff/orders', [StaffOrderController::class, 'index'])->name('staff.orders.index');
 });
 
+Route::put('/staff/orders/{id}/status', [StaffOrderController::class, 'updateStatus'])->name('staff.orders.updateStatus');
+Route::put('/staff/orders/{id}/paid', [StaffOrderController::class, 'markPaid'])->name('staff.orders.markPaid');
+
+Route::get('/staff/food-items', [FoodItemController::class, 'index'])->name('staff.foodItems.index');
+Route::put('/staff/food-items/{id}/toggle-status', [FoodItemController::class, 'toggleStatus'])->name('staff.foodItems.toggleStatus');
 
 require __DIR__.'/auth.php';
 
