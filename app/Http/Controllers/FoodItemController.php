@@ -24,4 +24,26 @@ class FoodItemController extends Controller
 
         return redirect()->route('staff.foodItems.index')->with('success', 'Food item status updated!');
     }
+
+    public function create()
+    {
+        $categories = \App\Models\Category::all();
+        return view('staff.foodItems.create',[
+            'categories' => $categories,
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        \App\Models\FoodItem::create([
+        'category_id' => $request->category_id,
+        'name' => $request->name,
+        'description' => $request->description,
+        'price' => $request->price,
+        'unit_cost' => $request->unit_cost,
+        'status' => 'available',
+        ]);
+
+        return redirect()->route('staff.foodItems.index')->with('success', 'Food item added!');
+    }
 }
