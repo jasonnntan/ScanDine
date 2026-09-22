@@ -25,6 +25,7 @@ class FoodItemController extends Controller
         return redirect()->route('staff.foodItems.index')->with('success', 'Food item status updated!');
     }
 
+    // crud
     public function create()
     {
         $categories = \App\Models\Category::all();
@@ -45,5 +46,31 @@ class FoodItemController extends Controller
         ]);
 
         return redirect()->route('staff.foodItems.index')->with('success', 'Food item added!');
+    }
+
+    public function edit($id)
+    {
+        $foodItem = \App\Models\FoodItem::findOrFail($id);
+        $categories = \App\Models\Category::all();
+
+        return view('staff.foodItems.edit', [
+            'foodItem' => $foodItem,
+            'categories' => $categories,
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $foodItem = \App\Models\FoodItem::findOrFail($id);
+
+        $foodItem->update([
+            'category_id' => $request->category_id,
+            'name' => $request->name,
+            'description' => $request->description,
+            'price' => $request->price,
+            'unit_cost' => $request->unit_cost
+        ]);
+
+        return redirect()->route('staff.foodItems.index')->with('success', 'Food item update!');
     }
 }
