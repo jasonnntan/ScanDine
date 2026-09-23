@@ -71,6 +71,14 @@ class FoodItemController extends Controller
             'unit_cost' => $request->unit_cost
         ]);
 
-        return redirect()->route('staff.foodItems.index')->with('success', 'Food item update!');
+        return redirect()->route('staff.foodItems.index')->with('success', 'Food item updated!');
+    }
+
+    public function destroy($id)
+    {
+    $foodItem = \App\Models\FoodItem::findOrFail($id);
+    $foodItem->delete();
+
+    return redirect()->route('staff.foodItems.index')->with('success', 'Food item deleted!');
     }
 }

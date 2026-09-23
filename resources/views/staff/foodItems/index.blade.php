@@ -23,6 +23,15 @@
                     Mark as {{ $item->status === 'available' ? 'Out of Stock' : 'Available' }}
                 </button>
             </form>
+
+            <a href="{{ route('staff.foodItems.edit', $item->id) }}">Edit</a>
+
+            <form action="{{ route('staff.foodItems.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this item?');" style="display: inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit">Delete</button>
+            </form>
+
         </div>
     @endforeach
 </body>
