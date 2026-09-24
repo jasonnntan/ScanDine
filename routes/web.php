@@ -5,6 +5,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\StaffOrderController;
 use App\Http\Controllers\FoodItemController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -58,5 +59,13 @@ Route::get('/staff/categories/{id}/edit', [CategoryController::class, 'edit'])->
 Route::put('/staff/categories/{id}', [CategoryController::class, 'update'])->name('staff.categories.update');
 Route::delete('/staff/categories/{id}', [CategoryController::class, 'destroy'])->name('staff.categories.destroy');
 
+
+// manger and owner role
+Route::middleware(['auth', 'role:manager,owner'])->group(function () {
+    Route::get('/staff/accounts', [UserController::class, 'index'])->name('staff.accounts.index');
+    Route::get('/staff/accounts/create', [UserController::class, 'create'])->name('staff.accounts.create');
+    Route::post('/staff/accounts', [UserController::class, 'store'])->name('staff.accounts.store');
+    Route::delete('/staff/accounts/{id}', [UserController::class, 'destroy'])->name('staff.accounts.destroy');
+});
 require __DIR__.'/auth.php';
 
