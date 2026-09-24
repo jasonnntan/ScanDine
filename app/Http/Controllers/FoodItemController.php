@@ -76,9 +76,9 @@ class FoodItemController extends Controller
 
     public function destroy($id)
     {
-    $foodItem = \App\Models\FoodItem::findOrFail($id);
-    $foodItem->delete();
+        $foodItem = \App\Models\FoodItem::findOrFail($id);
+        $foodItem->delete();
 
-    return redirect()->route('staff.foodItems.index')->with('success', 'Food item deleted!');
+        return redirect()->route('staff.foodItems.index')->with('success', 'Food item deleted!');
     }
 }

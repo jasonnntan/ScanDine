@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\StaffOrderController;
 use App\Http\Controllers\FoodItemController;
+use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -42,12 +43,20 @@ Route::put('/staff/orders/{id}/paid', [StaffOrderController::class, 'markPaid'])
 Route::get('/staff/food-items', [FoodItemController::class, 'index'])->name('staff.foodItems.index');
 Route::put('/staff/food-items/{id}/toggle-status', [FoodItemController::class, 'toggleStatus'])->name('staff.foodItems.toggleStatus');
 
-// crud
+// food crud
 Route::get('/staff/food-items/create', [FoodItemController::class, 'create'])->name('staff.foodItems.create');
 Route::post('/staff/food-items', [FoodItemController::class, 'store'])->name('staff.foodItems.store');
 Route::get('/staff/food-items/{id}/edit', [FoodItemController::class, 'edit'])->name('staff.foodItems.edit');
 Route::put('/staff/food-items/{id}', [FoodItemController::class, 'update'])->name('staff.foodItems.update');
 Route::delete('/staff/food-items/{id}', [FoodItemController::class, 'destroy'])->name('staff.foodItems.destroy');
+
+// cat crud
+Route::get('/staff/categories', [CategoryController::class, 'index'])->name('staff.categories.index');
+Route::get('/staff/categories/create', [CategoryController::class, 'create'])->name('staff.categories.create');
+Route::post('/staff/categories', [CategoryController::class, 'store'])->name('staff.categories.store');
+Route::get('/staff/categories/{id}/edit', [CategoryController::class, 'edit'])->name('staff.categories.edit');
+Route::put('/staff/categories/{id}', [CategoryController::class, 'update'])->name('staff.categories.update');
+Route::delete('/staff/categories/{id}', [CategoryController::class, 'destroy'])->name('staff.categories.destroy');
 
 require __DIR__.'/auth.php';
 
