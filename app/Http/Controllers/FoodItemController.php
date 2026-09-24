@@ -36,12 +36,19 @@ class FoodItemController extends Controller
 
     public function store(Request $request)
     {
+        $imagePath = null;
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('food-items', 'public');
+        }
+
         \App\Models\FoodItem::create([
         'category_id' => $request->category_id,
         'name' => $request->name,
         'description' => $request->description,
         'price' => $request->price,
         'unit_cost' => $request->unit_cost,
+        'image' => $imagePath,
         'status' => 'available',
         ]);
 
@@ -62,6 +69,12 @@ class FoodItemController extends Controller
     public function update(Request $request, $id)
     {
         $foodItem = \App\Models\FoodItem::findOrFail($id);
+
+        $imagePath = $foodItem->image;
+
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('food-items', 'public');
+        }
 
         $foodItem->update([
             'category_id' => $request->category_id,

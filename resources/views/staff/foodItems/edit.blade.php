@@ -7,7 +7,7 @@
 <body>
     <h1>Edit Food Item</h1>
 
-    <form action="{{ route('staff.foodItems.update', $foodItem->id) }}" method="POST">
+    <form action="{{ route('staff.foodItems.update', $foodItem->id) }}" method="POST"  enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
@@ -25,6 +25,11 @@
         <label>Description: <textarea name="description">{{ $foodItem->description }}</textarea></label><br>
         <label>Price: <input type="number" step="0.01" name="price" value="{{ $foodItem->price }}"></label><br>
         <label>Unit Cost: <input type="number" step="0.01" name="unit_cost" value="{{ $foodItem->unit_cost }}"></label><br>
+
+        @if ($foodItem->image)
+            <img src="{{ asset('storage/' . $foodItem->image) }}" width="100"><br>
+        @endif
+        <label>Image (leave blank to keep current): <input type="file" name="image"></label><br>
 
         <button type="submit">Save Changes</button>
     </form>

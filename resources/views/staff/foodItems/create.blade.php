@@ -7,9 +7,10 @@
 <body>
     <h1>Add New Food Item</h1>
 
-    <form action="{{ route('staff.foodItems.store') }}" method="POST">
+    <form action="{{ route('staff.foodItems.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
+        <label>Image: <input type="file" name="image"></label><br>
         <label>Category:
             <select name="category_id">
                 @foreach ($categories as $category)

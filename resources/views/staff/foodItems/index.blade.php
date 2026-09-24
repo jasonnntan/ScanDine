@@ -13,6 +13,9 @@
 
     @foreach ($foodItems as $item)
         <div style="border: 1px solid #ccc; margin-bottom: 10px; padding: 10px;">
+            @if ($item->image)
+                <img src="{{ asset('storage/' . $item->image) }}" width="80"><br>
+            @endif
             <strong>{{ $item->name }}</strong> ({{ $item->category->name }}) - RM {{ number_format($item->price, 2) }}
             <p>Status: {{ $item->status }}</p>
 
