@@ -6,6 +6,7 @@ use App\Http\Controllers\StaffOrderController;
 use App\Http\Controllers\FoodItemController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -66,6 +67,10 @@ Route::middleware(['auth', 'role:manager,owner'])->group(function () {
     Route::get('/staff/accounts/create', [UserController::class, 'create'])->name('staff.accounts.create');
     Route::post('/staff/accounts', [UserController::class, 'store'])->name('staff.accounts.store');
     Route::delete('/staff/accounts/{id}', [UserController::class, 'destroy'])->name('staff.accounts.destroy');
+    Route::get('/staff/dashboard', [DashboardController::class, 'index'])->name('staff.dashboard');
 });
+
+
+
 require __DIR__.'/auth.php';
 
