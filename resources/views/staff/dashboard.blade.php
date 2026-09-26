@@ -10,6 +10,7 @@
     <p>Today's Revenue: RM {{ number_format($todayRevenue, 2) }}</p>
     <p>Today's Orders: {{ $todayOrderCount }}</p>
     <p>Best Seller: {{ $bestSeller->item_name_snapshot ?? 'No orders yet' }} ({{ $bestSeller->total_sold ?? 0 }} sold)</p>
+    <p>Estimated Profit: RM {{ number_format($estimatedProfit ?? 0, 2) }}</p>
 
         <div id="salesChart" style="width: 600px; height: 400px;"></div>
 

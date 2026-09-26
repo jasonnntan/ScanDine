@@ -25,11 +25,18 @@ class DashboardController extends Controller
             ->groupBy('categories.name')
             ->get();
 
+        $estimatedProfit = \App\Models\OrderItem::join('food_items', 'order_items.food_item_id', '=', 'food_items.id')
+            ->join('customer_orders', 'order_items.customer_order_id', '=', 'customer_orders.id')
+            ->where('customer_orders.order_status', 'completed')
+            ->selectRaw('SUM((order_items.unit_price - food_items.unit_cost) * order_items.quantity) as total_profit')
+            ->value('total_profit');
+
         return view('staff.dashboard', [
             'todayRevenue' => $todayRevenue,
             'todayOrderCount' => $todayOrderCount,
             'bestSeller' => $bestSeller,
             'salesByCategory' => $salesByCategory,
+            'estimatedProfit' => $estimatedProfit,
         ]);
     }
 }
