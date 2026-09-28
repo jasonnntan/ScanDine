@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="utf-8">
     <title>Your Cart - Table {{ $table->table_number }}</title>
+    @vite(['resources/scss/app.scss'])
 </head>
 <body>
     <h1>Your Cart - Table {{ $table->table_number }}</h1>
@@ -13,7 +12,7 @@
         <p>Your cart is empty.</p>
     @else
         @foreach ($cart as $foodItemId => $item)
-            <div>
+            <div class="food-card">
                 <strong>{{ $item['name'] }}</strong> - RM {{ number_format($item['price'], 2) }} x {{ $item['quantity'] }}
                 = RM {{ number_format($item['price'] * $item['quantity'], 2) }}
             </div>
@@ -26,7 +25,7 @@
             <label>Name (optional): <input type="text" name="customer_name"></label><br>
             <label>Phone (optional): <input type="text" name="customer_phone"></label><br>
             <label>Note (optional): <textarea name="customer_note"></textarea></label><br>
-            <button type="submit">Place Order</button>
+            <button type="submit" class="btn">Place Order</button>
         </form>
     @endif
 

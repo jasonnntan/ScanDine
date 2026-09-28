@@ -63,6 +63,9 @@ Route::delete('/staff/categories/{id}', [CategoryController::class, 'destroy'])-
 
 // manger and owner role
 Route::middleware(['auth', 'role:manager,owner'])->group(function () {
+    Route::get('/staff/tables', [\App\Http\Controllers\TableController::class, 'index'])->name('staff.tables.index');
+    Route::post('/staff/tables/{id}/open', [\App\Http\Controllers\TableController::class, 'openTable'])->name('staff.tables.open');
+    Route::post('/staff/tables/{id}/close', [\App\Http\Controllers\TableController::class, 'closeTable'])->name('staff.tables.close');
     Route::get('/staff/accounts', [UserController::class, 'index'])->name('staff.accounts.index');
     Route::get('/staff/accounts/create', [UserController::class, 'create'])->name('staff.accounts.create');
     Route::post('/staff/accounts', [UserController::class, 'store'])->name('staff.accounts.store');
