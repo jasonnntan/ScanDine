@@ -31,4 +31,13 @@ class StaffOrderController extends Controller
 
     return redirect()->route('staff.orders.index')->with('success', 'Order marked as paid!');
     }
+
+
+    public function printTicket($id)
+    {
+        $order = CustomerOrder::with('orderItems', 'restaurantTable')->findOrFail($id);
+        return view('staff.orders.print', [
+            'order' => $order,
+        ]);
+    }
 }

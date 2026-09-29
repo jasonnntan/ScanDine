@@ -71,7 +71,10 @@ Route::middleware(['auth', 'role:manager,owner'])->group(function () {
     Route::post('/staff/accounts', [UserController::class, 'store'])->name('staff.accounts.store');
     Route::delete('/staff/accounts/{id}', [UserController::class, 'destroy'])->name('staff.accounts.destroy');
     Route::get('/staff/dashboard', [DashboardController::class, 'index'])->name('staff.dashboard');
+    Route::get('/staff/orders/{id}/print', [StaffOrderController::class, 'printTicket'])->name('staff.orders.print');
 });
+
+
 
 
 

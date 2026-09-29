@@ -43,6 +43,8 @@
                     <button type="submit">Mark as Paid</button>
                 </form>
             @endif
+
+            <a href="{{ route('staff.orders.print', $order->id) }}" target="_blank">🖨️ Print Ticket</a>
         </div>
     @endforeach
 </body>
