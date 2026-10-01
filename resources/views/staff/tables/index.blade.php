@@ -23,6 +23,7 @@
                 @if ($table->is_occupied)
                     {!! QrCode::size(150)->generate(url('/order/' . $table->qr_token)) !!}
                     <p style="font-size: 12px; word-break: break-all;">{{ url('/order/' . $table->qr_token) }}</p>
+                    <a href="{{ route('staff.tables.print', $table->id) }}" target="_blank">🖨️ Print QR Slip</a>
                     <form action="{{ route('staff.tables.close', $table->id) }}" method="POST">
                         @csrf
                         <button type="submit" class="btn">Close Table</button>

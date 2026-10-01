@@ -7,6 +7,7 @@ use App\Http\Controllers\FoodItemController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TableController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -72,6 +73,7 @@ Route::middleware(['auth', 'role:manager,owner'])->group(function () {
     Route::delete('/staff/accounts/{id}', [UserController::class, 'destroy'])->name('staff.accounts.destroy');
     Route::get('/staff/dashboard', [DashboardController::class, 'index'])->name('staff.dashboard');
     Route::get('/staff/orders/{id}/print', [StaffOrderController::class, 'printTicket'])->name('staff.orders.print');
+    Route::get('/staff/tables/{id}/print', [TableController::class, 'printQr'])->name('staff.tables.print');
 });
 
 

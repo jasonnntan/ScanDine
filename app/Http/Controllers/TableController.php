@@ -40,4 +40,13 @@ class TableController extends Controller
 
         return redirect()->route('staff.tables.index')->with('success', 'Table ' . $table->table_number . ' closed.');
     }
+
+    public function printQr($id)
+    {
+        $table = RestaurantTable::findOrFail($id);
+
+        return view('staff.tables.print', [
+            'table' => $table,
+        ]);
+    }
 }

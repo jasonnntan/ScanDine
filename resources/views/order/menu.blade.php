@@ -12,6 +12,24 @@
         <p class="success-message">{{ session('success') }}</p>
     @endif
 
+    <input type="text" id="searchBox" placeholder="Search for food or drinks..." onkeyup="filterItems()" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc;">
+
+    <script>
+    function filterItems() {
+        var input = document.getElementById('searchBox').value.toLowerCase();
+        var cards = document.getElementsByClassName('food-card');
+
+        for (var i = 0; i < cards.length; i++) {
+            var name = cards[i].getElementsByTagName('strong')[0].innerText.toLowerCase();
+            if (name.includes(input)) {
+                cards[i].style.display = '';
+            } else {
+                cards[i].style.display = 'none';
+            }
+        }
+    }
+    </script>
+
     @foreach ($categories as $category)
         <h2>{{ $category->name }}</h2>
 
