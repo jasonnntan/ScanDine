@@ -3,9 +3,10 @@
 <head>
     <meta charset="utf-8">
     <title>Your Cart - Table {{ $table->table_number }}</title>
-    @vite(['resources/scss/app.scss'])
+    @vite(['resources/scss/customer.scss'])
 </head>
 <body>
+    <div class="page-order-cart">
     <h1>Your Cart - Table {{ $table->table_number }}</h1>
 
     @if (count($cart) === 0)
@@ -30,5 +31,6 @@
     @endif
 
     <a href="{{ route('order.menu', $table->qr_token) }}">Back to Menu</a>
+    </div>
 </body>
 </html>

@@ -1,0 +1,164 @@
+// customer.scss - Entry file for customer facing pages
+@import "variables";
+@import "base";
+@import "components";
+
+// Page scope classes
+.page-order-menu {
+    // your menu page styles here later
+    padding: $space-4;
+
+    h1 {
+        margin-bottom: $space-4;
+    }
+
+    h2 {
+        margin-top: $space-6;
+        margin-bottom: $space-4;
+        color: $color-gray-800;
+    }
+
+    #searchBox {
+        width: 100%;
+        padding: $space-2;
+        margin-bottom: $space-4;
+        border-radius: $radius;
+        border: 1px solid $color-gray-300;
+    }
+
+    .success-message {
+        background: $color-success;
+        color: white;
+        padding: $space-2;
+        border-radius: $radius;
+        margin-bottom: $space-4;
+    }
+
+    .food-card {
+        background: white;
+        padding: $space-4;
+        border-radius: $radius;
+        box-shadow: $shadow;
+        margin-bottom: $space-4;
+
+        img {
+            height: 180px;
+            object-fit: cover;
+            margin-bottom: $space-2;
+            border-radius: $radius;
+        }
+
+        strong {
+            font-size: $text-lg;
+        }
+
+        form {
+            margin-top: $space-2;
+            display: flex;
+            gap: $space-2;
+            align-items: center;
+
+            input[type="number"] {
+                width: 70px;
+                padding: $space-2;
+                border: 1px solid $color-gray-300;
+                border-radius: $radius;
+            }
+        }
+
+        &.out-of-stock {
+            opacity: 0.65;
+        }
+    }
+}
+
+.page-order-cart {
+    // cart page styles (our next target)
+    .page-order-cart {
+        padding: $space-4;
+
+        h1 {
+            margin-bottom: $space-4;
+        }
+
+        h3 {
+            margin-top: $space-4;
+            margin-bottom: $space-4;
+        }
+
+        .food-card {
+            background: white;
+            padding: $space-4;
+            border-radius: $radius;
+            box-shadow: $shadow;
+            margin-bottom: $space-4;
+        }
+
+        form {
+            margin-top: $space-6;
+            display: flex;
+            flex-direction: column;
+            gap: $space-4;
+
+            label {
+                display: flex;
+                flex-direction: column;
+                gap: $space-2;
+
+                input,
+                textarea {
+                    padding: $space-2;
+                    border: 1px solid $color-gray-300;
+                    border-radius: $radius;
+                }
+            }
+        }
+
+        a {
+            display: inline-block;
+            margin-top: $space-6;
+            color: $color-primary;
+
+            &:hover {
+                color: $color-primary-dark;
+                text-decoration: underline;
+            }
+        }
+    }
+}
+
+.page-order-confirmation {
+    // confirmation page styles later
+    padding: $space-4;
+
+    .food-card {
+        background: white;
+        padding: $space-4;
+        border-radius: $radius;
+        box-shadow: $shadow;
+        margin-bottom: $space-4;
+
+        &:first-child {
+            text-align: center;
+        }
+    }
+
+    h1 {
+        margin-bottom: $space-4;
+    }
+
+    h3 {
+        margin-top: $space-4;
+        margin-bottom: $space-2;
+    }
+
+    .badge {
+        padding: $space-2;
+        border-radius: $radius;
+
+        &.badge-pending {
+            background: $color-warning;
+            color: white;
+        }
+    }
+}

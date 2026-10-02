@@ -3,16 +3,17 @@
 <head>
     <meta charset="utf-8">
     <title>DineFlow Menu - Table {{ $table->table_number }}</title>
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    @vite(['resources/scss.customer.scss'])
 </head>
 <body>
+    <div class="page-order-menu">
     <h1>Table {{ $table->table_number }}</h1>
 
     @if (session('success'))
         <p class="success-message">{{ session('success') }}</p>
     @endif
 
-    <input type="text" id="searchBox" placeholder="Search for food or drinks..." onkeyup="filterItems()" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc;">
+    <input type="text" id="searchBox" placeholder="Search for food or drinks..." onkeyup="filterItems()">
 
     <script>
     function filterItems() {
@@ -54,5 +55,6 @@
             </div>
         @endforeach
     @endforeach
+    </div>
 </body>
 </html>

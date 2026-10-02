@@ -3,10 +3,11 @@
 <head>
     <meta charset="utf-8">
     <title>Order Confirmed</title>
-    @vite(['resources/scss/app.scss'])
+    @vite(['resources/scss/customer.scss'])
 </head>
 <body>
-    <div class="food-card" style="text-align: center;">
+    <div class="page-order-confirmation">
+    <div class="food-card">
         <h1>Order #{{ $order->id }} Confirmed!</h1>
         <p>Thank you, your order has been placed.</p>
     </div>
@@ -20,5 +21,6 @@
     <h3>Total: RM {{ number_format($order->total_amount, 2) }}</h3>
 
     <p>Order Status: <span class="badge badge-pending">{{ $order->order_status }}</span></p>
+    </div>
 </body>
 </html>
