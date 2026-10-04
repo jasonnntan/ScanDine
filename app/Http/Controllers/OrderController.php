@@ -42,6 +42,10 @@ class OrderController extends Controller
 
     session()->put('cart', $cart);
 
+    if ($request->wantsJson()) {
+        return response()->json(['cart' => $cart]);
+    }
+
     return redirect()->route('order.menu', $qr_token)->with('success', 'Item added to cart!');
     }
 

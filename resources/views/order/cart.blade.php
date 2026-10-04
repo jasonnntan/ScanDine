@@ -3,9 +3,10 @@
 <head>
     <meta charset="utf-8">
     <title>Your Cart - Table {{ $table->table_number }}</title>
-    @vite(['resources/scss/customer.scss'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
+
     <div class="page-order-cart">
     <h1>Your Cart - Table {{ $table->table_number }}</h1>
 

@@ -45,14 +45,14 @@ class FoodItemController extends Controller
         \App\Models\FoodItem::create([
         'category_id' => $request->category_id,
         'name' => $request->name,
-        'description' => $request->description,
+        'description' => $request->description ?? '',
         'price' => $request->price,
-        'unit_cost' => $request->unit_cost,
+        'unit_cost' => $request->unit_cost ?? 0,
         'image' => $imagePath,
         'status' => 'available',
         ]);
 
-        return redirect()->route('staff.foodItems.index')->with('success', 'Food item added!');
+        return redirect()->route('staff.foodItems.create')->with('success', 'Food item added!');
     }
 
     public function edit($id)
@@ -79,9 +79,10 @@ class FoodItemController extends Controller
         $foodItem->update([
             'category_id' => $request->category_id,
             'name' => $request->name,
-            'description' => $request->description,
+            'description' => $request->description ?? '',
             'price' => $request->price,
-            'unit_cost' => $request->unit_cost
+            'unit_cost' => $request->unit_cost ?? 0,
+            'image' => $imagePath
         ]);
 
         return redirect()->route('staff.foodItems.index')->with('success', 'Food item updated!');
