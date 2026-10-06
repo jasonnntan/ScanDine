@@ -222,7 +222,8 @@
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Order place:l', data);
+            // console.log('Order place:', data);
+            window.location.href = '/order/confirmation/' + data.orderId;
         });
     }
     </script>
