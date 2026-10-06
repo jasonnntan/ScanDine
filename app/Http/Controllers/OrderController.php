@@ -101,6 +101,10 @@ class OrderController extends Controller
 
     session()->forget('cart');
 
+    if ($request->wantsJson()) {
+        return response()->json(['orderId' => $order->id]);
+    }
+
     return redirect()->route('order.confirmation', $order->id)->with('success', 'Order placed successfully!');
 }
 
@@ -113,5 +117,11 @@ public function confirmation($orderId)
     ]);
 }
 
+public function viewCartJson($qr_token)
+{
+    $cart = session()->get('cart', []);
+
+    return response()->json(['cart' => $cart]);
+}
 
 }

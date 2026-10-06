@@ -7,9 +7,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-50">
-    <div class="max-w-4xl mx-auto p-4 md:p-6">
+    <div class="max-w-md mx-auto p-4">
             <div class="relative">
-            <img src="{{ asset('images/banner.jpg') }}" class="w-full h-40 object-cover rounded-xl">
+            <img src="{{ asset('images/asa2.jpg') }}" class="w-full h-40 object-cover rounded-xl">
                 <div class="absolute bottom-0 left-0 right-0 bg-black/50 px-4 py-2">
                 </div>
             </div>
@@ -20,10 +20,10 @@
 
         {{-- dropdown and filter --}}
             <div class="flex gap-3">
-                <select id="categoryFilter" onchange="filterItems()" class="w-full mt-4 ">
+                <select id="categoryFilter" onchange="filterItems()" class="w-full mt-4 p-3 border border-gray-200 rounded-xl bg-white text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-red-800 appearance-none">
                     <option value="">All Categories</option>
                         @foreach ($categories as $cat)
-                            <option value="{{ $cat->name }}">{{ $cat->name }}</option>
+                            <option value="{{ $cat->name }}" data-id="{{ $cat->id }}">{{ $cat->name }}</option>
                         @endforeach
                 </select>
                     {{-- <input type="text" id="searchBox" placeholder="Search for food or drinks..." onkeyup="filterItems()"
@@ -38,7 +38,7 @@
 
 
     @foreach ($categories as $category)
-        <h2 class="text-xl font-semibold text-gray-700 mt-8 mb-4">{{ $category->name }}</h2>
+        <h2 id="cat-{{ $category->id }}" class="text-xl font-semibold text-gray-700 mt-8 mb-4">{{ $category->name }}</h2>
         <div class="grid grid-cols-1 gap-4">
         @foreach ($category->foodItems as $item)
             <div class="food-card bg-white rounded-xl shadow-md p-4 {{ $item->status !== 'available' ? 'out-of-stock' : '' }}" data-category="{{ $category->name }}">
@@ -46,17 +46,17 @@
                 @if ($item->image)
                     <img src="{{ asset('storage/' . $item->image) }}" class="w-24 h-24 flex-shrink-0 object-cover rounded-lg">
                 @endif
-                <div class="flex-1">
-                <div class="flex justify-between items-center mb-2">
-                <strong class="text-lg font-semibold text-gray-800">{{ $item->name }}</strong>
-                <span class="text-primary font-bold">RM {{ number_format($item->price, 2) }}</span>
-                </div>
-                <p class="text-gray-500 text-sm mb-4">{{ $item->description }}</p>
+                <div class="flex-1 min-w-0 flex flex-col justify-between">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 mb-1">
+                        <strong class="text-base sm:text-lg font-bold text-gray-800 leading-snug break-words">{{ $item->name }}</strong>
+                        <span class="text-red-800 font-extrabold text-sm sm:text-base whitespace-nowrap">RM {{ number_format($item->price, 2) }}</span>
+                    </div>
+                    <p class="text-gray-400 text-xs sm:text-sm line-clamp-2 mb-2">{{ $item->description }}</p>
 
                 @if ($item->status === 'available')
-                    <div class="flex gap-3 items-center">
-                        <input type="number" class="qty-input w-20 p-2 border border-gray-200 rounded-lg" value="1" min="1">
-                        <button type="button" onclick="addToCartAjax({{ $item->id }}, this)" class="bg-red-800 text-white font-semibold py-2 px-4 rounded-xl">Add to cart</button>
+                    <div class="flex gap-2 items-center">
+                        <input type="number" class="qty-input w-14 p-2 border border-gray-200 rounded-lg" value="1" min="1">
+                        <button type="button" onclick="addToCartAjax({{ $item->id }}, this)" class="bg-red-800 text-white font-semibold py-2 px-3 rounded-xl text-sm whitespace-nowrap">Add to cart</button>
                     </div>
                 @else
                     <p class="text-red-500 font-semibold">Out of stock</p>
@@ -70,15 +70,43 @@
     </div>
 
     {{-- floating button --}}
-    <div id="floatingCartBar" class="fixed bottom-0 left-0 right-0 bg-white shadow-lg p-4 hidden">
-        <div class="max-w-4xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <span class="text-2xl">🛒</span>
-                <span id="cartCount" class="bg-red-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">0</span>
-            </div>
-            <button class="bg-orange-500 text-white font-bold py-3 px-6 rounded-full">Review My Order</button>
+    <div id="floatingCartBar" class="fixed bottom-6 inset-x-0 px-4 hidden z-50 pointer-events-none">
+        <div class="max-w-md mx-auto px-4 pointer-events-auto">
+            <!-- The single brown floating action button -->
+            <button onclick="openCartModal()" class="w-full bg-orange-500 text-white font-bold py-4 px-6 rounded-2xl flex items-center justify-between shadow-2xl transition-transform active:scale-[0.98]">
+
+                <!-- Left element: Item Count -->
+                <span id="cartCount" class="text-lg font-extrabold min-w-[32px] text-left">0</span>
+
+                <!-- Middle element: Action Text -->
+                <span class="text-base font-extrabold tracking-wide">Review order</span>
+
+                <!-- Right element: Price Display -->
+                <span id="cartTotal" class="text-lg font-extrabold text-right">RM 0.00</span>
+
+            </button>
         </div>
     </div>
+
+    {{-- modal --}}
+    <div id="cartModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h2 class="text-lg font-bold">Confirm Order</h2>
+                <button onclick="closeCartModal()" class="text-2xl text-gray-400">&times;</button>
+            </div>
+            <div id="cartModalItems" class="p-4">
+            </div>
+            <div class="p-4 border-t">
+                <div class="flex justify-between font-bold text-lg mb-4">
+                    <span>Total</span>
+                    <span id="cartModalTotal">RM 0.00</span>
+                </div>
+                <button onclick="confirmOrder()" class="w-full bg-orange-500 text-white font-bold py-3 rounded-full">Confirm Order</button>
+            </div>
+        </div>
+    </div>
+
 
     <script>
     function filterItems() {
@@ -97,6 +125,28 @@
             }
         }
     }
+
+    window.addEventListener('scroll', function(){
+        var headings = document.querySelectorAll('h2[id^="cat-"]');
+        var currentCategoryId = null;
+
+        headings.forEach(function(heading){
+            var rect = heading.getBoundingClientRect();
+            if (rect.top <= 150){
+                currentCategoryId = heading.id.replace('cat-', '');
+            }
+        });
+
+        if (currentCategoryId){
+            var dropdown = document.getElementById('categoryFilter');
+            var options = dropdown.querySelectorAll('option');
+            options.forEach(function(opt){
+                if(opt.dataset.id === currentCategoryId){
+                    dropdown.value = opt.value;
+                }
+            });
+        }
+    });
 
     function addToCartAjax(foodItemId, button){
         var quantity = parseInt(button.previousElementSibling.value);
@@ -121,7 +171,58 @@
                 totalCount += cart[key].quantity;
             }
             document.getElementById('cartCount').innerText = totalCount;
+
+            var totalPrice = 0;
+            for (var key in cart) {
+                totalPrice += cart[key].price * cart[key].quantity;
+            }
+            document.getElementById('cartTotal').innerText = 'RM ' + totalPrice.toFixed(2);
             document.getElementById('floatingCartBar').classList.remove('hidden');
+        });
+    }
+
+    function openCartModal(){
+        fetch("{{ route('order.viewCartJson', $table->qr_token) }}")
+            .then(response => response.json())
+            .then(data => {
+                var cart = data.cart;
+                var itemsHtml = '';
+                var total = 0;
+
+                for (var key in cart) {
+                    var item = cart[key];
+                    var subtotal = item.price * item.quantity;
+                    total += subtotal;
+                    itemsHtml += '<div class="flex justify-between py-2 border-b">' +
+                        '<span>' + item.quantity + 'x ' + item.name + '</span>' +
+                        '<span>RM ' + subtotal.toFixed(2) + '</span>' +
+                        '</div>';
+                }
+
+            document.getElementById('cartModalItems').innerHTML = itemsHtml;
+            document.getElementById('cartModalTotal').innerText = 'RM ' + total.toFixed(2);
+            document.getElementById('cartModal').classList.remove('hidden');
+            document.getElementById('cartModal').classList.add('flex');
+            });
+    }
+
+    function closeCartModal(){
+        document.getElementById('cartModal').classList.add('hidden');
+        document.getElementById('cartModal').classList.remove('flex');
+    }
+
+    function confirmOrder(){
+        fetch("{{ route('order.placeOrder', $table->qr_token) }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Order place:l', data);
         });
     }
     </script>

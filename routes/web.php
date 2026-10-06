@@ -76,7 +76,7 @@ Route::middleware(['auth', 'role:manager,owner'])->group(function () {
     Route::get('/staff/tables/{id}/print', [TableController::class, 'printQr'])->name('staff.tables.print');
 });
 
-
+Route::get('/order/{qr_token}/cart-json', [OrderController::class, 'viewCartJson'])->name('order.viewCartJson');
 
 
 
