@@ -35,6 +35,9 @@ Route::get('/order/{qr_token}/cart', [OrderController::class,'viewCart'])->name(
 Route::post('/order/{qr_token}/checkout', [OrderController::class, 'placeOrder'])->name('order.placeOrder');
 Route::get('/order/confirmation/{orderId}', [OrderController::class, 'confirmation'])->name('order.confirmation');
 
+// modal remove
+Route::post('/order/{qr_token}/remove-from-cart', [OrderController::class, 'removeFromCart'])->name('order.removeFromCart');
+
 //role
 Route::middleware(['auth', 'role:staff,manager,owner'])->group(function () {
     Route::get('/staff/orders', [StaffOrderController::class, 'index'])->name('staff.orders.index');
@@ -78,7 +81,7 @@ Route::middleware(['auth', 'role:manager,owner'])->group(function () {
 
 Route::get('/order/{qr_token}/cart-json', [OrderController::class, 'viewCartJson'])->name('order.viewCartJson');
 
-
+Route::post('/order/{qr_token}/update-cart-quantity', [OrderController::class, 'updateCartQuantity'])->name('order.updateCartQuantity');
 
 require __DIR__.'/auth.php';
 

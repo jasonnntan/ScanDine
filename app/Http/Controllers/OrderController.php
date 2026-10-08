@@ -124,4 +124,34 @@ public function viewCartJson($qr_token)
     return response()->json(['cart' => $cart]);
 }
 
+public function removeFromCart(Request $request, $qr_token)
+{
+    $cart = session()->get('cart', []);
+    $foodItemId = $request->food_item_id;
+
+    if(isset($cart[$foodItemId])){
+        unset($cart[$foodItemId]);
+    }
+    session()->put('cart', $cart);
+    return response()->json(['cart' => $cart]);
+}
+
+public function updateCartQuantity(Request $request, $qr_token)
+{
+    $cart = session()->get('cart', []);
+    $foodItemId = $request->food_item_id;
+    $quantity = (int) $request->quantity;
+
+    if (isset($cart[$foodItemId])) {
+        if ($quantity <= 0) {
+            unset($cart[$foodItemId]);
+        } else {
+            $cart[$foodItemId]['quantity'] = $quantity;
+        }
+    }
+
+    session()->put('cart', $cart);
+
+    return response()->json(['cart' => $cart]);
+}
 }

@@ -189,13 +189,35 @@
                 var itemsHtml = '';
                 var total = 0;
 
+                // for (var key in cart) {
+                //     var item = cart[key];
+                //     var subtotal = item.price * item.quantity;
+                //     total += subtotal;
+                //     itemsHtml += '<div class="flex items-center justify-between py-3 border-b">' +
+                //         '<div class="flex items-center gap-2 flex-1">' +
+                //             '<span class="bg-orange-500 text-white font-bold text-sm rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">' + item.quantity + 'x</span>' +
+                //             '<span class="text-gray-800">' + item.name + '</span>' +
+                //         '</div>' +
+                //         '<button onclick="removeFromCart(' + key + ')" class="text-gray-400 hover:text-red-600 px-2">🗑️</button>' +
+                //         '<span class="font-semibold ml-2">RM ' + subtotal.toFixed(2) + '</span>' +
+                //         '</div>';
+                // }
+
                 for (var key in cart) {
                     var item = cart[key];
                     var subtotal = item.price * item.quantity;
                     total += subtotal;
-                    itemsHtml += '<div class="flex justify-between py-2 border-b">' +
-                        '<span>' + item.quantity + 'x ' + item.name + '</span>' +
-                        '<span>RM ' + subtotal.toFixed(2) + '</span>' +
+                    itemsHtml += '<div class="flex items-start justify-between py-3 border-b gap-3">' +
+                        '<div class="flex-1">' +
+                            '<div class="text-gray-800">' + item.name + '</div>' +
+                            '<div class="flex items-center gap-2 mt-2">' +
+                                '<button onclick="changeQuantity(' + key + ', ' + (item.quantity - 1) + ')" class="w-8 h-8 rounded-full bg-gray-200 font-bold">−</button>' +
+                                '<span class="bg-orange-500 text-white font-bold text-sm rounded-full min-w-[2rem] h-8 px-2 flex items-center justify-center">' + item.quantity + 'x</span>' +
+                                '<button onclick="changeQuantity(' + key + ', ' + (item.quantity + 1) + ')" class="w-8 h-8 rounded-full bg-gray-200 font-bold">+</button>' +
+                                '<button onclick="removeFromCart(' + key + ')" class="text-gray-400 hover:text-red-600 px-2">🗑️</button>' +
+                            '</div>' +
+                        '</div>' +
+                        '<span class="font-semibold whitespace-nowrap">RM ' + subtotal.toFixed(2) + '</span>' +
                         '</div>';
                 }
 
@@ -204,6 +226,38 @@
             document.getElementById('cartModal').classList.remove('hidden');
             document.getElementById('cartModal').classList.add('flex');
             });
+    }
+
+    function removeFromCart(foodItemId) {
+        fetch("{{ route('order.removeFromCart', $table->qr_token) }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                food_item_id: foodItemId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            openCartModal();
+
+            var totalCount = 0;
+            var totalPrice = 0;
+            for (var key in data.cart) {
+                totalCount += data.cart[key].quantity;
+                totalPrice += data.cart[key].price * data.cart[key].quantity;
+            }
+            document.getElementById('cartCount').innerText = totalCount;
+            document.getElementById('cartTotal').innerText = 'RM ' + totalPrice.toFixed(2);
+
+            if (totalCount === 0) {
+                document.getElementById('floatingCartBar').classList.add('hidden');
+                closeCartModal();
+            }
+        });
     }
 
     function closeCartModal(){
@@ -224,6 +278,39 @@
         .then(data => {
             // console.log('Order place:', data);
             window.location.href = '/order/confirmation/' + data.orderId;
+        });
+    }
+
+    function changeQuantity(foodItemId, newQuantity) {
+        fetch("{{ route('order.updateCartQuantity', $table->qr_token) }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                food_item_id: foodItemId,
+                quantity: newQuantity
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            var totalCount = 0;
+            var totalPrice = 0;
+            for (var key in data.cart) {
+                totalCount += data.cart[key].quantity;
+                totalPrice += data.cart[key].price * data.cart[key].quantity;
+            }
+            document.getElementById('cartCount').innerText = totalCount;
+            document.getElementById('cartTotal').innerText = 'RM ' + totalPrice.toFixed(2);
+
+            if (totalCount === 0) {
+                document.getElementById('floatingCartBar').classList.add('hidden');
+                closeCartModal();
+            } else {
+                openCartModal();
+            }
         });
     }
     </script>
