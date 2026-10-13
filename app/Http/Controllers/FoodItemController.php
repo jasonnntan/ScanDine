@@ -7,12 +7,31 @@ use App\Models\FoodItem;
 
 class FoodItemController extends Controller
 {
-    public function index()
+    // public function index()
+    // {
+    //     $foodItems = FoodItem::with('category')->get();
+
+    //     return view('staff.foodItems.index', [
+    //         'foodItems' => $foodItems,
+    //     ]);
+    // }
+
+    public function index(Request $request)
     {
-        $foodItems = FoodItem::with('category')->get();
+        $categories = \App\Models\Category::withCount('foodItems')->get();
+
+        $query = FoodItem::with('category');
+
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        $foodItems = $query->get();
 
         return view('staff.foodItems.index', [
             'foodItems' => $foodItems,
+            'categories' => $categories,
+            'selectedCategory' => $request->category,
         ]);
     }
 

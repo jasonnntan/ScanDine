@@ -9,7 +9,8 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::all();
+        // $categories = Category::all();
+        $categories = Category::withCount('foodItems')->get();
 
         return view('staff.categories.index', [
             'categories' => $categories,

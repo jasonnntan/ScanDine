@@ -2,40 +2,50 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Tables</title>
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-    <h1>Restaurant Tables</h1>
+<body class="bg-gray-50">
+    <div class="max-w-5xl mx-auto p-4 md:p-6">
 
-    @if (session('success'))
-        <p class="success-message">{{ session('success') }}</p>
-    @endif
+        <h1 class="text-2xl font-bold text-gray-800 mb-4">Restaurant Tables</h1>
 
-    <div style="display: flex; flex-wrap: wrap; gap: 15px;">
-        @foreach ($tables as $table)
-            <div class="food-card" style="width: 220px; text-align: center; {{ $table->is_occupied ? 'border: 2px solid #e74c3c;' : 'border: 2px solid #4CAF50;' }}">
-                <h2 style="margin-top: 0;">Table {{ $table->table_number }}</h2>
-                <p style="font-weight: bold; color: {{ $table->is_occupied ? '#e74c3c' : '#4CAF50' }};">
-                    {{ $table->is_occupied ? 'Occupied' : 'Free' }}
-                </p>
+        @if (session('success'))
+            <p class="bg-green-100 text-green-800 p-3 rounded-xl mb-4 break-all">{{ session('success') }}</p>
+        @endif
 
-                @if ($table->is_occupied)
-                    {!! QrCode::size(150)->generate(url('/order/' . $table->qr_token)) !!}
-                    <p style="font-size: 12px; word-break: break-all;">{{ url('/order/' . $table->qr_token) }}</p>
-                    <a href="{{ route('staff.tables.print', $table->id) }}" target="_blank">🖨️ Print QR Slip</a>
-                    <form action="{{ route('staff.tables.close', $table->id) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn">Close Table</button>
-                    </form>
-                @else
-                    <form action="{{ route('staff.tables.open', $table->id) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn">Open Table</button>
-                    </form>
-                @endif
-            </div>
-        @endforeach
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            @foreach ($tables as $table)
+                <div class="bg-white rounded-xl shadow-md p-4 text-center border-2 {{ $table->is_occupied ? 'border-red-500' : 'border-green-500' }}">
+
+                    <h2 class="text-xl font-bold text-gray-800">Table {{ $table->table_number }}</h2>
+                    <p class="font-semibold mb-3 {{ $table->is_occupied ? 'text-red-600' : 'text-green-600' }}">
+                        {{ $table->is_occupied ? 'Occupied' : 'Free' }}
+                    </p>
+
+                    @if ($table->is_occupied)
+                        <div class="flex justify-center mb-2">
+                            {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(150)->generate(url('/order/' . $table->qr_token)) !!}
+                        </div>
+                        <p class="text-xs text-gray-400 break-all mb-3">{{ url('/order/' . $table->qr_token) }}</p>
+
+                        <a href="{{ route('staff.tables.print', $table->id) }}" target="_blank" class="block w-full border border-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-lg text-sm mb-2">🖨️ Print QR Slip</a>
+
+                        <form action="{{ route('staff.tables.close', $table->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="w-full bg-red-600 text-white font-semibold px-4 py-2 rounded-lg text-sm">Close Table</button>
+                        </form>
+                    @else
+                        <form action="{{ route('staff.tables.open', $table->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="w-full bg-green-600 text-white font-semibold px-4 py-2 rounded-lg text-sm">Open Table</button>
+                        </form>
+                    @endif
+
+                </div>
+            @endforeach
+        </div>
     </div>
 </body>
 </html>
