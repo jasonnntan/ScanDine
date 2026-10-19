@@ -7,38 +7,16 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function index()
-    {
-        // $categories = Category::all();
-        $categories = Category::withCount('foodItems')->get();
-
-        return view('staff.categories.index', [
-            'categories' => $categories,
-        ]);
-    }
-
-    public function create()
-    {
-        return view('staff.categories.create');
-    }
-
     public function store(Request $request)
     {
-        Category::create([
+        $category = Category::create([
             'name' => $request->name,
             'description' => $request->description,
         ]);
 
-        return redirect()->route('staff.categories.index')->with('success', 'Category added!');
-    }
-
-    public function edit($id)
-    {
-        $category = Category::findOrFail($id);
-
-        return view('staff.categories.edit', [
-            'category' => $category,
-        ]);
+        return redirect()
+            ->route('staff.foodItems.index', ['category' => $category->id])
+            ->with('success', 'Category added!');
     }
 
     public function update(Request $request, $id)
@@ -50,7 +28,9 @@ class CategoryController extends Controller
             'description' => $request->description,
         ]);
 
-        return redirect()->route('staff.categories.index')->with('success', 'Category updated!');
+        return redirect()
+            ->route('staff.foodItems.index', ['category' => $category->id])
+            ->with('success', 'Category updated!');
     }
 
     public function destroy($id)
@@ -58,6 +38,8 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
         $category->delete();
 
-        return redirect()->route('staff.categories.index')->with('success', 'Category deleted!');
+        return redirect()
+            ->route('staff.foodItems.index')
+            ->with('success', 'Category deleted!');
     }
 }

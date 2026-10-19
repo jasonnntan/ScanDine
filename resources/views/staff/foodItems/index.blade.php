@@ -22,25 +22,47 @@
 
             {{-- sidebar --}}
             <aside class="md:w-56 flex-shrink-0 md:sticky md:top-6 self-start w-full">
-                {{-- cat modal --}}
-                    <div class="flex justify-between items-center mb-2">
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Categories</p>
-                        <button type="button" onclick="openAddCategoryModal()" class="text-xs font-semibold text-green-700 whitespace-nowrap">+ Add category</button>
-                    </div>
+
+                <div class="flex justify-between items-center mb-2 gap-2">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Categories</p>
+                    <button type="button" onclick="openAddCategoryModal()" class="text-xs font-semibold text-green-700 whitespace-nowrap">+ Add new category</button>
+                </div>
+
                 <nav class="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible pb-2 md:pb-0">
 
                     <a href="{{ route('staff.foodItems.index') }}"
-                    class="flex justify-between items-center gap-3 whitespace-nowrap px-4 py-2 rounded-lg text-sm font-semibold {{ $selectedCategory ? 'bg-white text-gray-700 shadow-sm' : 'bg-orange-500 text-white' }}">
+                       class="flex-shrink-0 flex justify-between items-center gap-3 whitespace-nowrap px-4 py-2 rounded-lg text-sm font-semibold {{ $selectedCategory ? 'bg-white text-gray-700 shadow-sm' : 'bg-orange-500 text-white' }}">
                         <span>All</span>
                         <span class="text-xs">{{ $categories->sum('food_items_count') }}</span>
                     </a>
 
                     @foreach ($categories as $cat)
-                        <a href="{{ route('staff.foodItems.index', ['category' => $cat->id]) }}"
-                        class="flex justify-between items-center gap-3 whitespace-nowrap px-4 py-2 rounded-lg text-sm font-semibold {{ (int) $selectedCategory === $cat->id ? 'bg-orange-500 text-white' : 'bg-white text-gray-700 shadow-sm' }}">
-                            <span>{{ $cat->name }}</span>
-                            <span class="text-xs">{{ $cat->food_items_count }}</span>
-                        </a>
+                        @php $isActive = (int) $selectedCategory === $cat->id; @endphp
+
+                        <div class="flex-shrink-0 flex items-center rounded-lg text-sm font-semibold {{ $isActive ? 'bg-orange-500 text-white' : 'bg-white text-gray-700 shadow-sm' }}">
+
+                            <a href="{{ route('staff.foodItems.index', ['category' => $cat->id]) }}"
+                               class="flex-1 min-w-0 flex justify-between items-center gap-3 whitespace-nowrap pl-4 pr-3 py-2">
+                                <span class="truncate">{{ $cat->name }}</span>
+                                <span class="text-xs">{{ $cat->food_items_count }}</span>
+                            </a>
+
+                            @if ($isActive)
+                                <button type="button"
+                                        onclick="openEditCategoryModal(this)"
+                                        data-action="{{ route('staff.categories.update', $cat->id) }}"
+                                        data-name="{{ $cat->name }}"
+                                        data-description="{{ $cat->description }}"
+                                        class="px-2 py-2 hover:bg-orange-600 rounded" title="Edit category">✏️</button>
+
+                                <button type="button"
+                                        onclick="openDeleteCategoryModal(this)"
+                                        data-action="{{ route('staff.categories.destroy', $cat->id) }}"
+                                        data-name="{{ $cat->name }}"
+                                        data-count="{{ $cat->food_items_count }}"
+                                        class="pl-2 pr-3 py-2 hover:bg-orange-600 rounded" title="Delete category">🗑️</button>
+                            @endif
+                        </div>
                     @endforeach
 
                 </nav>
@@ -48,36 +70,6 @@
 
             {{-- items --}}
             <div class="flex-1 min-w-0">
-
-            @php
-                $currentCategory = $selectedCategory ? $categories->firstWhere('id', (int) $selectedCategory) : null;
-            @endphp
-
-            @if ($currentCategory)
-                <div class="bg-white rounded-xl shadow-md p-4 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div class="min-w-0">
-                        <p class="font-bold text-gray-800 break-words">{{ $currentCategory->name }}</p>
-                        <p class="text-sm text-gray-500">{{ $currentCategory->description ?: 'No description' }}</p>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <button type="button"
-                                onclick="openEditCategoryModal(this)"
-                                data-action="{{ route('staff.categories.update', $currentCategory->id) }}"
-                                data-name="{{ $currentCategory->name }}"
-                                data-description="{{ $currentCategory->description }}"
-                                class="border border-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-lg text-sm whitespace-nowrap">Edit category</button>
-
-                        <form action="{{ route('staff.categories.destroy', $currentCategory->id) }}" method="POST"
-                            onsubmit="return confirm('Deleting this category will also delete its {{ $currentCategory->food_items_count }} food item(s). Are you sure?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="bg-red-600 text-white font-semibold px-4 py-2 rounded-lg text-sm whitespace-nowrap">Delete category</button>
-                        </form>
-                    </div>
-                </div>
-            @endif
-
                 @if ($foodItems->isEmpty())
                     <p class="bg-white rounded-xl shadow-md p-6 text-center text-gray-500">No food items in this category yet.</p>
                 @else
@@ -114,15 +106,15 @@
 
                                     <div class="flex gap-2">
                                         <button type="button"
-                                            onclick="openEditModal(this)"
-                                            data-action="{{ route('staff.foodItems.update', $item->id) }}"
-                                            data-category="{{ $item->category_id }}"
-                                            data-name="{{ $item->name }}"
-                                            data-description="{{ $item->description }}"
-                                            data-price="{{ $item->price }}"
-                                            data-unit-cost="{{ $item->unit_cost }}"
-                                            data-image="{{ $item->image ? asset('storage/' . $item->image) : '' }}"
-                                            class="flex-1 text-center border border-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-lg text-sm">Edit</button>
+                                                onclick="openEditModal(this)"
+                                                data-action="{{ route('staff.foodItems.update', $item->id) }}"
+                                                data-category="{{ $item->category_id }}"
+                                                data-name="{{ $item->name }}"
+                                                data-description="{{ $item->description }}"
+                                                data-price="{{ $item->price }}"
+                                                data-unit-cost="{{ $item->unit_cost }}"
+                                                data-image="{{ $item->image ? asset('storage/' . $item->image) : '' }}"
+                                                class="flex-1 text-center border border-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-lg text-sm">Edit</button>
 
                                         <form action="{{ route('staff.foodItems.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this item?');" class="flex-1">
                                             @csrf
@@ -138,54 +130,58 @@
                 @endif
             </div>
 
-        {{-- add food item modal --}}
-            <div id="addModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4" onclick="if (event.target === this) closeAddModal()">
-                <div class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        </div>
+    </div>
 
-                    <div class="flex justify-between items-center p-4 border-b">
-                        <h2 class="text-lg font-bold text-gray-800">Add New Food Item</h2>
-                        <button type="button" onclick="closeAddModal()" class="text-2xl text-gray-400">&times;</button>
-                    </div>
+    {{-- add food item modal --}}
+    <div id="addModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4" onclick="if (event.target === this) closeAddModal()">
+        <div class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
 
-                    <form action="{{ route('staff.foodItems.store') }}" method="POST" enctype="multipart/form-data" class="p-4 flex flex-col gap-3">
-                        @csrf
-
-                        <label class="text-sm font-semibold text-gray-700">Category
-                            <select name="category_id" class="mt-1 w-full p-2 border border-gray-200 rounded-lg bg-white font-normal">
-                                @foreach ($categories as $cat)
-                                    <option value="{{ $cat->id }}" {{ (int) $selectedCategory === $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
-                                @endforeach
-                            </select>
-                        </label>
-
-                        <label class="text-sm font-semibold text-gray-700">Name
-                            <input type="text" name="name" required class="mt-1 w-full p-2 border border-gray-200 rounded-lg font-normal">
-                        </label>
-
-                        <label class="text-sm font-semibold text-gray-700">Description
-                            <textarea name="description" rows="2" class="mt-1 w-full p-2 border border-gray-200 rounded-lg font-normal"></textarea>
-                        </label>
-
-                        <div class="flex gap-3">
-                            <label class="flex-1 text-sm font-semibold text-gray-700">Price (RM)
-                                <input type="number" step="0.01" min="0" name="price" required class="mt-1 w-full p-2 border border-gray-200 rounded-lg font-normal">
-                            </label>
-                            <label class="flex-1 text-sm font-semibold text-gray-700">Unit cost (RM)
-                                <input type="number" step="0.01" min="0" name="unit_cost" class="mt-1 w-full p-2 border border-gray-200 rounded-lg font-normal">
-                            </label>
-                        </div>
-
-                        <label class="text-sm font-semibold text-gray-700">Image
-                            <input type="file" name="image" accept="image/*" class="mt-1 w-full text-sm font-normal">
-                        </label>
-
-                        <div class="flex gap-2 pt-2">
-                            <button type="button" onclick="closeAddModal()" class="flex-1 border border-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-lg text-sm">Cancel</button>
-                            <button type="submit" class="flex-1 bg-green-600 text-white font-semibold px-4 py-2 rounded-lg text-sm">Add Item</button>
-                        </div>
-                    </form>
-                </div>
+            <div class="flex justify-between items-center p-4 border-b">
+                <h2 class="text-lg font-bold text-gray-800">Add New Food Item</h2>
+                <button type="button" onclick="closeAddModal()" class="text-2xl text-gray-400">&times;</button>
             </div>
+
+            <form action="{{ route('staff.foodItems.store') }}" method="POST" enctype="multipart/form-data" class="p-4 flex flex-col gap-3">
+                @csrf
+
+                <label class="text-sm font-semibold text-gray-700">Category
+                    <select name="category_id" class="mt-1 w-full p-2 border border-gray-200 rounded-lg bg-white font-normal">
+                        @foreach ($categories as $cat)
+                            <option value="{{ $cat->id }}" {{ (int) $selectedCategory === $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                        @endforeach
+                    </select>
+                </label>
+
+                <label class="text-sm font-semibold text-gray-700">Name
+                    <input type="text" name="name" required class="mt-1 w-full p-2 border border-gray-200 rounded-lg font-normal">
+                </label>
+
+                <label class="text-sm font-semibold text-gray-700">Description
+                    <textarea name="description" rows="2" class="mt-1 w-full p-2 border border-gray-200 rounded-lg font-normal"></textarea>
+                </label>
+
+                <div class="flex gap-3">
+                    <label class="flex-1 text-sm font-semibold text-gray-700">Price (RM)
+                        <input type="number" step="0.01" min="0" name="price" required class="mt-1 w-full p-2 border border-gray-200 rounded-lg font-normal">
+                    </label>
+                    <label class="flex-1 text-sm font-semibold text-gray-700">Unit cost (RM)
+                        <input type="number" step="0.01" min="0" name="unit_cost" class="mt-1 w-full p-2 border border-gray-200 rounded-lg font-normal">
+                    </label>
+                </div>
+
+                <label class="text-sm font-semibold text-gray-700">Image
+                    <input type="file" name="image" accept="image/*" class="mt-1 w-full text-sm font-normal">
+                </label>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="closeAddModal()" class="flex-1 border border-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-lg text-sm">Cancel</button>
+                    <button type="submit" class="flex-1 bg-green-600 text-white font-semibold px-4 py-2 rounded-lg text-sm">Add Item</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
 
     {{-- edit food item modal --}}
     <div id="editModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4" onclick="if (event.target === this) closeEditModal()">
@@ -241,7 +237,7 @@
         </div>
     </div>
 
-        {{-- add category modal --}}
+    {{-- add category modal --}}
     <div id="addCategoryModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4" onclick="if (event.target === this) closeAddCategoryModal()">
         <div class="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
 
@@ -300,23 +296,32 @@
         </div>
     </div>
 
+    {{-- delete category modal --}}
+    <div id="deleteCategoryModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4" onclick="if (event.target === this) closeDeleteCategoryModal()">
+        <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden">
+
+            <div class="p-5 text-center">
+                <div class="mx-auto mb-3 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-2xl">🗑️</div>
+                <h2 class="text-lg font-bold text-gray-800">Delete category?</h2>
+                <p class="text-sm text-gray-500 mt-2">
+                    Are you sure you want to delete
+                    <span id="deleteCategoryName" class="font-semibold text-gray-800"></span>?
+                </p>
+                <p id="deleteCategoryWarning" class="text-sm text-red-600 mt-2"></p>
+            </div>
+
+            <form id="deleteCategoryForm" action="" method="POST" class="flex gap-2 p-4 pt-0">
+                @csrf
+                @method('DELETE')
+                <button type="button" onclick="closeDeleteCategoryModal()" class="flex-1 border border-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-lg text-sm">Cancel</button>
+                <button type="submit" class="flex-1 bg-red-600 text-white font-semibold px-4 py-2 rounded-lg text-sm">Yes, delete</button>
+            </form>
+
         </div>
     </div>
 
     <script>
     function openAddModal() {
-        document.getElementById('addModal').classList.remove('hidden');
-        document.getElementById('addModal').classList.add('flex');
-    }
-
-    function closeAddModal() {
-        document.getElementById('addModal').classList.add('hidden');
-        document.getElementById('addModal').classList.remove('flex');
-    }
-
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') closeAddModal();
-    });function openAddModal() {
         document.getElementById('addModal').classList.remove('hidden');
         document.getElementById('addModal').classList.add('flex');
     }
@@ -380,16 +385,33 @@
         document.getElementById('editCategoryModal').classList.remove('flex');
     }
 
+    function openDeleteCategoryModal(button) {
+        document.getElementById('deleteCategoryForm').action = button.dataset.action;
+        document.getElementById('deleteCategoryName').innerText = button.dataset.name;
+
+        var count = parseInt(button.dataset.count);
+        document.getElementById('deleteCategoryWarning').innerText = count > 0
+            ? 'This will also delete its ' + count + ' food item(s). This cannot be undone.'
+            : 'This cannot be undone.';
+
+        document.getElementById('deleteCategoryModal').classList.remove('hidden');
+        document.getElementById('deleteCategoryModal').classList.add('flex');
+    }
+
+    function closeDeleteCategoryModal() {
+        document.getElementById('deleteCategoryModal').classList.add('hidden');
+        document.getElementById('deleteCategoryModal').classList.remove('flex');
+    }
 
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             closeAddModal();
             closeEditModal();
+            closeAddCategoryModal();
+            closeEditCategoryModal();
+            closeDeleteCategoryModal();
         }
     });
-
-
-
     </script>
 </body>
 </html>

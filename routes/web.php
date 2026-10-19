@@ -57,10 +57,10 @@ Route::put('/staff/food-items/{id}', [FoodItemController::class, 'update'])->nam
 Route::delete('/staff/food-items/{id}', [FoodItemController::class, 'destroy'])->name('staff.foodItems.destroy');
 
 // cat crud
-Route::get('/staff/categories', [CategoryController::class, 'index'])->name('staff.categories.index');
-Route::get('/staff/categories/create', [CategoryController::class, 'create'])->name('staff.categories.create');
+// Route::get('/staff/categories', [CategoryController::class, 'index'])->name('staff.categories.index');
+// Route::get('/staff/categories/create', [CategoryController::class, 'create'])->name('staff.categories.create');
 Route::post('/staff/categories', [CategoryController::class, 'store'])->name('staff.categories.store');
-Route::get('/staff/categories/{id}/edit', [CategoryController::class, 'edit'])->name('staff.categories.edit');
+// Route::get('/staff/categories/{id}/edit', [CategoryController::class, 'edit'])->name('staff.categories.edit');
 Route::put('/staff/categories/{id}', [CategoryController::class, 'update'])->name('staff.categories.update');
 Route::delete('/staff/categories/{id}', [CategoryController::class, 'destroy'])->name('staff.categories.destroy');
 
@@ -70,10 +70,13 @@ Route::middleware(['auth', 'role:manager,owner'])->group(function () {
     Route::get('/staff/tables', [\App\Http\Controllers\TableController::class, 'index'])->name('staff.tables.index');
     Route::post('/staff/tables/{id}/open', [\App\Http\Controllers\TableController::class, 'openTable'])->name('staff.tables.open');
     Route::post('/staff/tables/{id}/close', [\App\Http\Controllers\TableController::class, 'closeTable'])->name('staff.tables.close');
+
     Route::get('/staff/accounts', [UserController::class, 'index'])->name('staff.accounts.index');
     Route::get('/staff/accounts/create', [UserController::class, 'create'])->name('staff.accounts.create');
     Route::post('/staff/accounts', [UserController::class, 'store'])->name('staff.accounts.store');
+    Route::put('/staff/accounts/{id}', [UserController::class, 'update'])->name('staff.accounts.update');
     Route::delete('/staff/accounts/{id}', [UserController::class, 'destroy'])->name('staff.accounts.destroy');
+
     Route::get('/staff/dashboard', [DashboardController::class, 'index'])->name('staff.dashboard');
     Route::get('/staff/orders/{id}/print', [StaffOrderController::class, 'printTicket'])->name('staff.orders.print');
     Route::get('/staff/tables/{id}/print', [TableController::class, 'printQr'])->name('staff.tables.print');
@@ -83,5 +86,9 @@ Route::get('/order/{qr_token}/cart-json', [OrderController::class, 'viewCartJson
 
 Route::post('/order/{qr_token}/update-cart-quantity', [OrderController::class, 'updateCartQuantity'])->name('order.updateCartQuantity');
 
+//dashboard
+// Route::get('/admin/dashboard', function () {
+//     return view('admin.dashboard');
+// });
 require __DIR__.'/auth.php';
 
