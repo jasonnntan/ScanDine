@@ -14,8 +14,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return auth()->user()->role === 'staff'
+        ? redirect()->route('staff.orders.index')
+        : redirect()->route('staff.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/owner-test', function () {
