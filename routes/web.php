@@ -8,6 +8,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TableController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,11 +18,26 @@ Route::get('/', function () {
 // Route::get('/dashboard', function () {
 //     return view('dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return auth()->user()->role === 'staff'
+//         ? redirect()->route('staff.orders.index')
+//         : redirect()->route('staff.dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+
 Route::get('/dashboard', function () {
-    return auth()->user()->role === 'staff'
-        ? redirect()->route('staff.orders.index')
-        : redirect()->route('staff.dashboard');
+    $role = auth()->user()->role;
+
+    if ($role === 'staff') {
+        return redirect()->route('staff.orders.index');
+    }
+
+    if (in_array($role, ['manager', 'owner'])) {
+        return redirect()->route('staff.dashboard');
+    }
+
+    abort(403, 'Unauthorized role.');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
 
 Route::get('/owner-test', function () {
     return 'Welcome, owner! You passed the role check.';
@@ -84,6 +100,7 @@ Route::middleware(['auth', 'role:manager,owner'])->group(function () {
 
     Route::get('/staff/dashboard', [DashboardController::class, 'index'])->name('staff.dashboard');
     Route::get('/staff/orders/{id}/print', [StaffOrderController::class, 'printTicket'])->name('staff.orders.print');
+    Route::get('/staff/orders/{id}/receipt', [StaffOrderController::class, 'printReceipt'])->name('staff.orders.receipt');
     Route::get('/staff/tables/{id}/print', [TableController::class, 'printQr'])->name('staff.tables.print');
 });
 
@@ -95,5 +112,10 @@ Route::post('/order/{qr_token}/update-cart-quantity', [OrderController::class, '
 // Route::get('/admin/dashboard', function () {
 //     return view('admin.dashboard');
 // });
+
+Route::middleware(['auth', 'role:owner'])->group(function () {
+    Route::get('/staff/settings', [SettingController::class, 'edit'])->name('staff.settings.edit');
+    Route::put('/staff/settings', [SettingController::class, 'update'])->name('staff.settings.update');
+});
 require __DIR__.'/auth.php';
 

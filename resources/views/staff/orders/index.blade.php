@@ -154,15 +154,17 @@
                     <button type="submit" class="bg-orange-500 text-white font-semibold px-4 py-2 rounded-lg text-sm">Update</button>
                 </form>
 
+                 @if ($order->payment_status !== 'paid')
+                    <form action="{{ route('staff.orders.markPaid', $order->id) }}" method="POST" class="mb-2">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit" class="w-full bg-green-600 text-white font-semibold px-4 py-2 rounded-lg text-sm">Mark as Paid</button>
+                    </form>
+                @endif
+
                 <div class="flex gap-2">
-                    @if ($order->payment_status !== 'paid')
-                        <form action="{{ route('staff.orders.markPaid', $order->id) }}" method="POST" class="flex-1">
-                            @csrf
-                            @method('PUT')
-                            <button type="submit" class="w-full bg-green-600 text-white font-semibold px-4 py-2 rounded-lg text-sm">Mark as Paid</button>
-                        </form>
-                    @endif
-                    <a href="{{ route('staff.orders.print', $order->id) }}" target="_blank" class="flex-1 text-center border border-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-lg text-sm">🖨️ Print Ticket</a>
+                    <a href="{{ route('staff.orders.print', $order->id) }}" target="_blank" class="flex-1 text-center border border-gray-300 text-gray-700 font-semibold px-3 py-2 rounded-lg text-sm">🍳 Kitchen ticket</a>
+                    <a href="{{ route('staff.orders.receipt', $order->id) }}" target="_blank" class="flex-1 text-center border border-gray-300 text-gray-700 font-semibold px-3 py-2 rounded-lg text-sm">🧾 Receipt</a>
                 </div>
 
             </div>

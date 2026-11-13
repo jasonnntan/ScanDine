@@ -16,6 +16,7 @@
             ['label' => 'Tables',          'icon' => '🪑', 'route' => 'staff.tables.index',    'match' => 'staff.tables.*',    'roles' => ['staff', 'manager', 'owner']],
             ['label' => 'Food Items',      'icon' => '🍽️', 'route' => 'staff.foodItems.index', 'match' => 'staff.foodItems.*', 'roles' => ['staff', 'manager', 'owner']],
             ['label' => 'Accounts',        'icon' => '👥', 'route' => 'staff.accounts.index',  'match' => 'staff.accounts.*',  'roles' => ['manager', 'owner']],
+            ['label' => 'Settings',        'icon' => '⚙️', 'route' => 'staff.settings.edit',   'match' => 'staff.settings.*',  'roles' => ['owner']],
         ];
     @endphp
 

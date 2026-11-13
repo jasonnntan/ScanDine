@@ -1,12 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff - Food Items</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-50">
+@extends('layouts.staff')
+
+@section('title', 'Food Items')
+
+@section('content')
+
     <div class="max-w-7xl mx-auto p-4 md:p-6">
 
         <div class="flex justify-between items-center mb-4 gap-3">
@@ -73,7 +70,7 @@
                 @if ($foodItems->isEmpty())
                     <p class="bg-white rounded-xl shadow-md p-6 text-center text-gray-500">No food items in this category yet.</p>
                 @else
-                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-4">
                         @foreach ($foodItems as $item)
                             <div class="bg-white rounded-xl shadow-md p-4 flex flex-col">
 
@@ -320,7 +317,10 @@
         </div>
     </div>
 
-    <script>
+@endsection
+
+@push('scripts')
+<script>
     function openAddModal() {
         document.getElementById('addModal').classList.remove('hidden');
         document.getElementById('addModal').classList.add('flex');
@@ -412,6 +412,5 @@
             closeDeleteCategoryModal();
         }
     });
-    </script>
-</body>
-</html>
+</script>
+@endpush

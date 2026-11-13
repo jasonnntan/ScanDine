@@ -45,13 +45,13 @@ class FoodItemController extends Controller
     }
 
     // crud
-    public function create()
-    {
-        $categories = \App\Models\Category::all();
-        return view('staff.foodItems.create',[
-            'categories' => $categories,
-        ]);
-    }
+    // public function create()
+    // {
+    //     $categories = \App\Models\Category::all();
+    //     return view('staff.foodItems.create',[
+    //         'categories' => $categories,
+    //     ]);
+    // }
 
     public function store(Request $request)
     {
@@ -71,7 +71,7 @@ class FoodItemController extends Controller
         'status' => 'available',
         ]);
 
-        return redirect()->route('staff.foodItems.create')->with('success', 'Food item added!');
+        return redirect()->route('staff.foodItems.index')->with('success', 'Food item added!');
     }
 
     public function edit($id)

@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Accounts</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-50">
+@extends('layouts.staff')
+
+@section('title', 'Accounts')
+
+@section('content')
     <div class="max-w-5xl mx-auto p-4 md:p-6">
 
         <div class="flex justify-between items-center mb-4 gap-3">
@@ -25,7 +21,7 @@
         @if ($users->isEmpty())
             <p class="bg-white rounded-xl shadow-md p-6 text-center text-gray-500">No staff or manager accounts yet.</p>
         @else
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                 @foreach ($users as $user)
                     @php
                         $canManage = auth()->user()->role === 'owner' || $user->role === 'staff';
@@ -193,7 +189,10 @@
         </div>
     </div>
 
-    <script>
+@endsection
+
+@push('scripts')
+<script>
     function openAddAccountModal() {
         document.getElementById('addAccountModal').classList.remove('hidden');
         document.getElementById('addAccountModal').classList.add('flex');
@@ -247,6 +246,5 @@
             closeDeleteAccountModal();
         }
     });
-    </script>
-</body>
-</html>
+</script>
+@endpush
