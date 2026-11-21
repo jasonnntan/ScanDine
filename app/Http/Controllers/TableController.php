@@ -17,6 +17,37 @@ class TableController extends Controller
         ]);
     }
 
+    public function store(Request $request)
+    {
+        $request->validate([
+            'count' => 'required|integer|min:1|max:100',
+        ]);
+
+        $count = (int) $request->count;
+
+        // continue numbering after the highest table number
+        $next = (int) RestaurantTable::pluck('table_number')
+            ->map(function ($number) {
+                return (int) $number;
+            })
+            ->max() + 1;
+
+        for ($i = 0; $i < $count; $i++) {
+            RestaurantTable::create([
+                'table_number' => $next + $i,
+                'qr_token' => Str::random(20),
+                'is_occupied' => false,
+            ]);
+        }
+
+        $last = $next + $count - 1;
+        $message = $count === 1
+            ? 'Table ' . $next . ' added!'
+            : 'Tables ' . $next . ' to ' . $last . ' added!';
+
+        return redirect()->route('staff.tables.index')->with('success', $message);
+    }
+
     public function openTable($id)
     {
         $table = RestaurantTable::findOrFail($id);
@@ -35,7 +66,7 @@ class TableController extends Controller
 
         $table->update([
             'is_occupied' => false,
-            'qr_token' => \Illuminate\Support\Str::random(20),
+            'qr_token' => Str::random(20),
         ]);
 
         return redirect()->route('staff.tables.index')->with('success', 'Table ' . $table->table_number . ' closed.');
@@ -48,5 +79,21 @@ class TableController extends Controller
         return view('staff.tables.print', [
             'table' => $table,
         ]);
+    }
+        public function destroy($id)
+    {
+        $table = RestaurantTable::findOrFail($id);
+
+        if ($table->is_occupied) {
+            return redirect()->route('staff.tables.index')->with('error', 'Close Table ' . $table->table_number . ' before removing it.');
+        }
+
+        if (\App\Models\CustomerOrder::where('restaurant_table_id', $table->id)->exists()) {
+            return redirect()->route('staff.tables.index')->with('error', 'Table ' . $table->table_number . ' has past orders, so it cannot be removed.');
+        }
+
+        $table->delete();
+
+        return redirect()->route('staff.tables.index')->with('success', 'Table ' . $table->table_number . ' removed.');
     }
 }

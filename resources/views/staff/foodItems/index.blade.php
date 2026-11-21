@@ -113,7 +113,7 @@
                                                 data-image="{{ $item->image ? asset('storage/' . $item->image) : '' }}"
                                                 class="flex-1 text-center border border-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-lg text-sm">Edit</button>
 
-                                        <form action="{{ route('staff.foodItems.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this item?');" class="flex-1">
+                                        <form action="{{ route('staff.foodItems.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Delete this item? It will disappear from the menu, but past orders and sales stay.');" class="flex-1">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="w-full bg-red-600 text-white font-semibold px-4 py-2 rounded-lg text-sm">Delete</button>
@@ -391,8 +391,8 @@
 
         var count = parseInt(button.dataset.count);
         document.getElementById('deleteCategoryWarning').innerText = count > 0
-            ? 'This will also delete its ' + count + ' food item(s). This cannot be undone.'
-            : 'This cannot be undone.';
+            ? 'Its ' + count + ' food item(s) will also be removed from the menu. Past orders and sales stay.'
+            : 'Past orders and sales stay.';
 
         document.getElementById('deleteCategoryModal').classList.remove('hidden');
         document.getElementById('deleteCategoryModal').classList.add('flex');

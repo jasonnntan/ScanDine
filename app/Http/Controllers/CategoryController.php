@@ -9,6 +9,11 @@ class CategoryController extends Controller
 {
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string|max:100|unique:categories,name,NULL,id,deleted_at,NULL',
+            'description' => 'nullable|string|max:500',
+        ]);
+
         $category = Category::create([
             'name' => $request->name,
             'description' => $request->description,
@@ -21,6 +26,11 @@ class CategoryController extends Controller
 
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'name' => 'required|string|max:100|unique:categories,name,' . $id . ',id,deleted_at,NULL',
+            'description' => 'nullable|string|max:500',
+        ]);
+
         $category = Category::findOrFail($id);
 
         $category->update([
@@ -36,6 +46,7 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         $category = Category::findOrFail($id);
+        $category->foodItems()->delete();
         $category->delete();
 
         return redirect()

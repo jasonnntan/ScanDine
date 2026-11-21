@@ -16,13 +16,20 @@ class UserController extends Controller
         ]);
     }
 
-    public function create()
-    {
-        return view('staff.accounts.create');
-    }
-
     public function store(Request $request)
     {
+
+        $request->validate([
+            'name' => 'required|string|max:100',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8|max:100',
+            'role' => 'required|in:staff,manager',
+        ]);
+
+        if ($request->role === 'manager' && auth()->user()->role !== 'owner') {
+            return redirect()->route('staff.accounts.index')->with('error', 'Only the owner can create manager accounts.');
+        }
+
         User::create([
             'name' => $request->name,
             'email' => $request->email,

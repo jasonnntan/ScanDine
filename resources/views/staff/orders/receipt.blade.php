@@ -13,8 +13,8 @@
     </style>
 </head>
 <body onload="window.print()">
-    <h2>DineFlow</h2>
-    <p class="center">Payment receipt</p>
+    <h2>{{ $setting->restaurant_name }}</h2>
+        <p class="center">Payment receipt</p>
 
     <p>
         Order #{{ $order->id }}<br>

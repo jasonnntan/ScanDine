@@ -9,13 +9,15 @@
 <body class="bg-gray-50">
     <div class="max-w-md mx-auto p-4">
             <div class="relative">
-            <img src="{{ asset('images/asa2.jpg') }}" class="w-full h-40 object-cover rounded-xl">
+                @if ($setting->banner_image)
+            <img src="{{ asset('storage/' . $setting->banner_image) }}" class="w-full h-40 object-cover rounded-xl">
+            @endif
                 <div class="absolute bottom-0 left-0 right-0 bg-black/50 px-4 py-2">
                 </div>
             </div>
 
         <div class="sticky top-0 z-10 bg-white shadow-md p-4 rounded-b-xl">
-            <h1 class="text-2xl font-bold text-gray-800 mb-2">The Restaurant</h1>
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">{{ $setting->restaurant_name }}</h1>
             <span class="bg-gray-100 text-gray-600 text-sm font-semibold px-3 py-1 rounded-full">Table {{ $table->table_number }}</span>
 
         {{-- dropdown and filter --}}
@@ -97,6 +99,11 @@
             </div>
             <div id="cartModalItems" class="p-4">
             </div>
+                <div class="px-4 pb-4 flex flex-col gap-3">
+                <input type="text" id="customerName" maxlength="100" placeholder="Your name (optional)" class="w-full p-3 border border-gray-200 rounded-xl text-sm">
+                <input type="tel" id="customerPhone" maxlength="20" placeholder="Phone number (optional)" class="w-full p-3 border border-gray-200 rounded-xl text-sm">
+                <textarea id="customerNote" rows="2" maxlength="500" placeholder="Note for the whole order (optional)" class="w-full p-3 border border-gray-200 rounded-xl text-sm"></textarea>
+                </div>
             <div class="p-4 border-t">
                 <div class="flex justify-between font-bold text-lg mb-4">
                     <span>Total</span>
@@ -148,12 +155,17 @@
         }
     });
 
-    function addToCartAjax(foodItemId, button){
+        function addToCartAjax(foodItemId, button){
         var quantity = parseInt(button.previousElementSibling.value);
 
-        fetch("{{ route('order.addToCart', $table->qr_token) }}",{
+        if (!quantity || quantity < 1) {
+            alert('Please choose a quantity of 1 or more.');
+            return;
+        }
+
+        fetch("{{ route('order.addToCart', $table->qr_token) }}", {
             method: 'POST',
-            headers:{
+            headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json'
@@ -164,24 +176,38 @@
             })
         })
         .then(response => response.json())
-        .then(data =>{
+        .then(data => {
+            if (!data.cart) {
+                alert(data.message || 'Could not add this item.');
+                return;
+            }
+
             var cart = data.cart;
             var totalCount = 0;
-            for (var key in cart){
-                totalCount += cart[key].quantity;
-            }
-            document.getElementById('cartCount').innerText = totalCount;
-
             var totalPrice = 0;
+
             for (var key in cart) {
+                totalCount += cart[key].quantity;
                 totalPrice += cart[key].price * cart[key].quantity;
             }
+
+            document.getElementById('cartCount').innerText = totalCount;
             document.getElementById('cartTotal').innerText = 'RM ' + totalPrice.toFixed(2);
             document.getElementById('floatingCartBar').classList.remove('hidden');
+        })
+        .catch(function () {
+            alert('Could not add this item. Please try again.');
         });
     }
 
-    function openCartModal(){
+    var itemNotes = {};
+    var placing = false;
+
+    function setItemNote(id, value) {
+        itemNotes[id] = value;
+    }
+
+    function openCartModal() {
         fetch("{{ route('order.viewCartJson', $table->qr_token) }}")
             .then(response => response.json())
             .then(data => {
@@ -189,42 +215,38 @@
                 var itemsHtml = '';
                 var total = 0;
 
-                // for (var key in cart) {
-                //     var item = cart[key];
-                //     var subtotal = item.price * item.quantity;
-                //     total += subtotal;
-                //     itemsHtml += '<div class="flex items-center justify-between py-3 border-b">' +
-                //         '<div class="flex items-center gap-2 flex-1">' +
-                //             '<span class="bg-orange-500 text-white font-bold text-sm rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">' + item.quantity + 'x</span>' +
-                //             '<span class="text-gray-800">' + item.name + '</span>' +
-                //         '</div>' +
-                //         '<button onclick="removeFromCart(' + key + ')" class="text-gray-400 hover:text-red-600 px-2">🗑️</button>' +
-                //         '<span class="font-semibold ml-2">RM ' + subtotal.toFixed(2) + '</span>' +
-                //         '</div>';
-                // }
-
                 for (var key in cart) {
                     var item = cart[key];
                     var subtotal = item.price * item.quantity;
                     total += subtotal;
-                    itemsHtml += '<div class="flex items-start justify-between py-3 border-b gap-3">' +
-                        '<div class="flex-1">' +
-                            '<div class="text-gray-800">' + item.name + '</div>' +
-                            '<div class="flex items-center gap-2 mt-2">' +
-                                '<button onclick="changeQuantity(' + key + ', ' + (item.quantity - 1) + ')" class="w-8 h-8 rounded-full bg-gray-200 font-bold">−</button>' +
-                                '<span class="bg-orange-500 text-white font-bold text-sm rounded-full min-w-[2rem] h-8 px-2 flex items-center justify-center">' + item.quantity + 'x</span>' +
-                                '<button onclick="changeQuantity(' + key + ', ' + (item.quantity + 1) + ')" class="w-8 h-8 rounded-full bg-gray-200 font-bold">+</button>' +
-                                '<button onclick="removeFromCart(' + key + ')" class="text-gray-400 hover:text-red-600 px-2">🗑️</button>' +
+
+                    itemsHtml += '<div class="py-3 border-b">' +
+                        '<div class="flex items-start justify-between gap-3">' +
+                            '<div class="flex-1">' +
+                                '<div class="text-gray-800 font-medium">' + item.name + '</div>' +
+                                '<div class="flex items-center gap-2 mt-2">' +
+                                    '<button onclick="changeQuantity(' + key + ', ' + (item.quantity - 1) + ')" class="w-8 h-8 rounded-full bg-gray-200 font-bold">−</button>' +
+                                    '<span class="bg-orange-500 text-white font-bold text-sm rounded-full min-w-[2rem] h-8 px-2 flex items-center justify-center">' + item.quantity + 'x</span>' +
+                                    '<button onclick="changeQuantity(' + key + ', ' + (item.quantity + 1) + ')" class="w-8 h-8 rounded-full bg-gray-200 font-bold">+</button>' +
+                                    '<button onclick="removeFromCart(' + key + ')" class="text-gray-400 hover:text-red-600 px-2">🗑️</button>' +
+                                '</div>' +
                             '</div>' +
+                            '<span class="font-semibold whitespace-nowrap">RM ' + subtotal.toFixed(2) + '</span>' +
                         '</div>' +
-                        '<span class="font-semibold whitespace-nowrap">RM ' + subtotal.toFixed(2) + '</span>' +
-                        '</div>';
+                        '<input type="text" maxlength="200" data-note-for="' + key + '" oninput="setItemNote(' + key + ', this.value)" placeholder="Note for this item, e.g. less spicy" class="mt-2 w-full p-2 border border-gray-200 rounded-lg text-xs">' +
+                    '</div>';
                 }
 
-            document.getElementById('cartModalItems').innerHTML = itemsHtml;
-            document.getElementById('cartModalTotal').innerText = 'RM ' + total.toFixed(2);
-            document.getElementById('cartModal').classList.remove('hidden');
-            document.getElementById('cartModal').classList.add('flex');
+                document.getElementById('cartModalItems').innerHTML = itemsHtml;
+
+                // Restore any typed notes when the modal re-opens
+                document.querySelectorAll('[data-note-for]').forEach(function (input) {
+                    input.value = itemNotes[input.dataset.noteFor] || '';
+                });
+
+                document.getElementById('cartModalTotal').innerText = 'RM ' + total.toFixed(2);
+                document.getElementById('cartModal').classList.remove('hidden');
+                document.getElementById('cartModal').classList.add('flex');
             });
     }
 
@@ -265,7 +287,25 @@
         document.getElementById('cartModal').classList.remove('flex');
     }
 
-    function confirmOrder(){
+    // function confirmOrder(){
+    //     fetch("{{ route('order.placeOrder', $table->qr_token) }}", {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //             'X-CSRF-TOKEN': '{{ csrf_token() }}',
+    //             'Accept': 'application/json'
+    //         },
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         // console.log('Order place:', data);
+    //         window.location.href = '/order/confirmation/' + data.orderId;
+    //     });
+    // }
+        function confirmOrder(){
+        if (placing) { return; }
+        placing = true;
+
         fetch("{{ route('order.placeOrder', $table->qr_token) }}", {
             method: 'POST',
             headers: {
@@ -273,11 +313,25 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'Accept': 'application/json'
             },
+            body: JSON.stringify({
+                customer_name: document.getElementById('customerName').value,
+                customer_phone: document.getElementById('customerPhone').value,
+                customer_note: document.getElementById('customerNote').value,
+                item_notes: itemNotes
+            })
         })
         .then(response => response.json())
         .then(data => {
-            // console.log('Order place:', data);
+            if (!data.orderId) {
+                placing = false;
+                alert(data.message || 'Could not place the order. Please try again.');
+                return;
+            }
             window.location.href = '/order/confirmation/' + data.orderId;
+        })
+        .catch(function () {
+            placing = false;
+            alert('Could not place the order. Please try again.');
         });
     }
 

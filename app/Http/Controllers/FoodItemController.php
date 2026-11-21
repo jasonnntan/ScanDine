@@ -7,15 +7,6 @@ use App\Models\FoodItem;
 
 class FoodItemController extends Controller
 {
-    // public function index()
-    // {
-    //     $foodItems = FoodItem::with('category')->get();
-
-    //     return view('staff.foodItems.index', [
-    //         'foodItems' => $foodItems,
-    //     ]);
-    // }
-
     public function index(Request $request)
     {
         $categories = \App\Models\Category::withCount('foodItems')->get();
@@ -44,50 +35,48 @@ class FoodItemController extends Controller
         return redirect()->route('staff.foodItems.index')->with('success', 'Food item status updated!');
     }
 
-    // crud
-    // public function create()
-    // {
-    //     $categories = \App\Models\Category::all();
-    //     return view('staff.foodItems.create',[
-    //         'categories' => $categories,
-    //     ]);
-    // }
-
     public function store(Request $request)
     {
+        $request->validate([
+            'category_id' => 'required|exists:categories,id',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'price' => 'required|numeric|min:0|max:99999.99',
+            'unit_cost' => 'nullable|numeric|min:0|max:99999.99',
+            'image' => 'nullable|image|max:2048',
+        ]);
+
         $imagePath = null;
 
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('food-items', 'public');
         }
 
-        \App\Models\FoodItem::create([
-        'category_id' => $request->category_id,
-        'name' => $request->name,
-        'description' => $request->description ?? '',
-        'price' => $request->price,
-        'unit_cost' => $request->unit_cost ?? 0,
-        'image' => $imagePath,
-        'status' => 'available',
+        FoodItem::create([
+            'category_id' => $request->category_id,
+            'name' => $request->name,
+            'description' => $request->description ?? '',
+            'price' => $request->price,
+            'unit_cost' => $request->unit_cost ?? 0,
+            'image' => $imagePath,
+            'status' => 'available',
         ]);
 
         return redirect()->route('staff.foodItems.index')->with('success', 'Food item added!');
     }
 
-    public function edit($id)
-    {
-        $foodItem = \App\Models\FoodItem::findOrFail($id);
-        $categories = \App\Models\Category::all();
-
-        return view('staff.foodItems.edit', [
-            'foodItem' => $foodItem,
-            'categories' => $categories,
-        ]);
-    }
-
     public function update(Request $request, $id)
     {
-        $foodItem = \App\Models\FoodItem::findOrFail($id);
+        $request->validate([
+            'category_id' => 'required|exists:categories,id',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'price' => 'required|numeric|min:0|max:99999.99',
+            'unit_cost' => 'nullable|numeric|min:0|max:99999.99',
+            'image' => 'nullable|image|max:2048',
+        ]);
+
+        $foodItem = FoodItem::findOrFail($id);
 
         $imagePath = $foodItem->image;
 
@@ -101,7 +90,7 @@ class FoodItemController extends Controller
             'description' => $request->description ?? '',
             'price' => $request->price,
             'unit_cost' => $request->unit_cost ?? 0,
-            'image' => $imagePath
+            'image' => $imagePath,
         ]);
 
         return redirect()->route('staff.foodItems.index')->with('success', 'Food item updated!');
@@ -109,7 +98,7 @@ class FoodItemController extends Controller
 
     public function destroy($id)
     {
-        $foodItem = \App\Models\FoodItem::findOrFail($id);
+        $foodItem = FoodItem::findOrFail($id);
         $foodItem->delete();
 
         return redirect()->route('staff.foodItems.index')->with('success', 'Food item deleted!');

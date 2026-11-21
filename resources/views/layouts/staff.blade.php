@@ -64,6 +64,15 @@
 
         {{-- page content --}}
         <main class="flex-1 min-w-0">
+                @if ($errors->any())
+                    <div class="max-w-5xl mx-auto px-4 md:px-6 pt-4 md:pt-6">
+                        <div class="bg-red-100 text-red-800 p-3 rounded-xl text-sm">
+                            @foreach ($errors->all() as $error)
+                                <p>{{ $error }}</p>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             @yield('content')
         </main>
     </div>

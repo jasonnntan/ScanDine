@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Setting extends Model
 {
     protected $fillable = [
+        'restaurant_name',
+        'banner_image',
         'sst_enabled',
         'sst_rate',
         'service_charge_enabled',
