@@ -1,59 +1,115 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ScanDine (DineFlow) — QR Code Restaurant Ordering & Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A full-stack web application built with **Laravel 12**, **Tailwind CSS**, and **MySQL** that streamlines dine-in restaurant operations. Customers scan a table-specific QR code to browse the menu and place orders directly from their phones, while kitchen and floor staff manage live orders, table sessions, taxes, and receipts through a responsive management portal.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Screenshots
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 1. Customer Mobile Ordering Flow
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+|                   QR Menu & Search                   |              Cart & Item Special Notes               |                     Live Order Status Tracker                     |
+| :--------------------------------------------------: | :--------------------------------------------------: | :---------------------------------------------------------------: |
+| ![Customer Menu](docs/screenshots/customer-menu.png) | ![Customer Cart](docs/screenshots/customer-cart.png) | ![Order Confirmation](docs/screenshots/customer-confirmation.png) |
 
-## Learning Laravel
+### 2. Staff & Kitchen Operations
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+![Orders Queue](docs/screenshots/orders-queue.png)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+|               Table QR Management                |               Printable Table QR Slip                |                  Kitchen Print Ticket                  |                    Itemized Tax Receipt                    |
+| :----------------------------------------------: | :--------------------------------------------------: | :----------------------------------------------------: | :--------------------------------------------------------: |
+| ![Tables and QR](docs/screenshots/tables-qr.png) | ![Table QR Slip](docs/screenshots/table-qr-slip.png) | ![Kitchen Ticket](docs/screenshots/kitchen-ticket.png) | ![Customer Receipt](docs/screenshots/customer-receipt.png) |
 
-## Laravel Sponsors
+### 3. Admin Analytics & Store Configuration
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+![Sales Dashboard](docs/screenshots/sales-dashboard.png)
 
-### Premium Partners
+|            Menu & Stock Management             |             Dynamic Tax & Receipt Settings             |
+| :--------------------------------------------: | :----------------------------------------------------: |
+| ![Food Items](docs/screenshots/food-items.png) | ![Settings and Tax](docs/screenshots/settings-tax.png) |
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+|               Role-Based Staff Accounts               |               Staff Portal Login                |
+| :---------------------------------------------------: | :---------------------------------------------: |
+| ![Staff Accounts](docs/screenshots/accounts-rbac.png) | ![Staff Login](docs/screenshots/login-page.png) |
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Key Features
 
-## Code of Conduct
+### Customer Self-Service Experience
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- **Session-Based Table QR Codes:** Customers scan their table's active QR code to browse categories, search dishes, and order with zero app installation required.
+- **Interactive Cart & Item Notes:** Supports quantity adjustments, item-level special requests, order-wide kitchen notes, and real-time order status tracking.
+- **Daily Resetting Order Numbers:** Order numbers automatically start from **#1** each day for clean kitchen and counter coordination while maintaining unique database records for reporting.
 
-## Security Vulnerabilities
+### Staff & Kitchen Portal
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- **SPA-Style Navigation:** Custom AJAX view swapping updates tabs, filters, and order statuses in place without full-page browser reloads, paired with a collapsible icon sidebar.
+- **Live Order Queue:** One-tap status progression (`Pending` → `Preparing` → `Ready` → `Served` → `Completed`), payment tracking, wait-time indicators, and optional 30-second auto-refresh.
+- **Item Removal & Audit Logs:** Authorized staff can remove out-of-stock items with optional reasons, automatically recalculating order totals and recording timestamped entries in the Staff Log.
+- **Print-Ready Slips:** Dedicated print layouts for kitchen tickets, itemized customer receipts, and table QR slips.
 
-## License
+### Administration & Configuration
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Dynamic Tax & Charge Engine:** Configure restaurant details, **Service Charge (%)**, and **SST (%)** with a live receipt preview that automatically updates staff order cards and printed receipts.
+- **Role-Based Access Control (RBAC):** Distinct permission levels for **Staff**, **Manager**, and **Owner** accounts.
+- **Menu & Table Management:** Toggle item stock availability, organize food categories, and manage table QR sessions.
+
+---
+
+## Tech Stack
+
+- **Backend:** PHP 8.2, Laravel 12
+- **Frontend:** Blade Templates, Tailwind CSS, Plus Jakarta Sans, Font Awesome, Vanilla JS (SPA Fetch Engine)
+- **Database:** MySQL 8.0
+- **Build & Packages:** Vite, `simplesoftwareio/simple-qrcode`
+
+---
+
+## Local Installation
+
+1. **Clone the repository**
+
+    ```bash
+    git clone [https://github.com/jasonnntan/ScanDine.git](https://github.com/jasonnntan/ScanDine.git)
+    cd ScanDine
+    ```
+
+2. **Install PHP and frontend dependencies**
+
+    ```bash
+    composer install
+    npm install
+    npm run build
+    ```
+
+3. **Configure environment variables**
+
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
+
+    Update your database credentials in `.env`:
+
+    ```env
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=scandine_database
+    DB_USERNAME=root
+    DB_PASSWORD=your_password
+    ```
+
+4. **Run database migrations and seeders**
+
+    ```bash
+    php artisan migrate --seed
+    php artisan storage:link
+    ```
+
+5. **Start the local development server**
+    ```bash
+    php artisan serve
+    ```
+    Visit `http://127.0.0.1:8000/login` to access the staff portal.
