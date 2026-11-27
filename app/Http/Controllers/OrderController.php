@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\RestaurantTable;
 use App\Models\Category;
+use App\Models\CustomerOrder;
+use App\Models\FoodItem;
+use App\Models\OrderItem;
+use App\Models\RestaurantTable;
+use App\Models\Setting;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -12,18 +17,20 @@ class OrderController extends Controller
     {
         $table = RestaurantTable::where('qr_token', $qr_token)->firstOrFail();
         $categories = Category::with('foodItems')->get();
+        $cart = session()->get('cart', []);
 
         return view('order.menu', [
             'table' => $table,
             'categories' => $categories,
-            'setting' => \App\Models\Setting::current(),
+            'setting' => Setting::current(),
+            'cart' => $cart,
         ]);
     }
 
     public function addToCart(Request $request, $qr_token)
     {
         $foodItemId = $request->food_item_id;
-        $foodItem = is_scalar($foodItemId) ? \App\Models\FoodItem::find($foodItemId) : null;
+        $foodItem = is_scalar($foodItemId) ? FoodItem::find($foodItemId) : null;
         $quantity = (int) $request->quantity;
 
         $error = null;
@@ -78,41 +85,59 @@ class OrderController extends Controller
             $total += $item['price'] * $item['quantity'];
         }
 
-        $order = \App\Models\CustomerOrder::create([
-            'restaurant_table_id' => $table->id,
-            'customer_name' => $this->cleanText($request->customer_name, 100),
-            'customer_phone' => $this->cleanText($request->customer_phone, 20),
-            'customer_note' => $this->cleanText($request->customer_note, 500),
-            'total_amount' => $total,
-            'order_status' => 'pending',
-            'payment_status' => 'unpaid',
-        ]);
-
         $itemNotes = (array) $request->input('item_notes', []);
+        $cleanName = $this->cleanText($request->customer_name, 100);
+        $cleanPhone = $this->cleanText($request->customer_phone, 20);
+        $cleanNote = $this->cleanText($request->customer_note, 500);
 
-        foreach ($cart as $foodItemId => $item) {
-            \App\Models\OrderItem::create([
-                'customer_order_id' => $order->id,
-                'food_item_id' => $foodItemId,
-                'item_name_snapshot' => $item['name'],
-                'unit_price' => $item['price'],
-                'quantity' => $item['quantity'],
-                'item_note' => $this->cleanText($itemNotes[$foodItemId] ?? null, 200),
+        $order = DB::transaction(function () use ($table, $cart, $total, $itemNotes, $cleanName, $cleanPhone, $cleanNote) {
+            $nextDailyNumber = (CustomerOrder::whereDate('created_at', today())
+                ->lockForUpdate()
+                ->max('daily_order_number') ?? 0) + 1;
+
+            $newOrder = CustomerOrder::create([
+                'daily_order_number' => $nextDailyNumber,
+                'restaurant_table_id' => $table->id,
+                'customer_name' => $cleanName,
+                'customer_phone' => $cleanPhone,
+                'customer_note' => $cleanNote,
+                'total_amount' => $total,
+                'order_status' => 'pending',
+                'payment_status' => 'unpaid',
             ]);
-        }
+
+            foreach ($cart as $foodItemId => $item) {
+                OrderItem::create([
+                    'customer_order_id' => $newOrder->id,
+                    'food_item_id' => $foodItemId,
+                    'item_name_snapshot' => $item['name'],
+                    'unit_price' => $item['price'],
+                    'quantity' => $item['quantity'],
+                    'item_note' => $this->cleanText($itemNotes[$foodItemId] ?? null, 200),
+                ]);
+            }
+
+            return $newOrder;
+        });
 
         session()->forget('cart');
 
+        $displayNumber = $order->daily_order_number ?? $order->id;
+
         if ($request->wantsJson()) {
-            return response()->json(['orderId' => $order->id]);
+            return response()->json([
+                'orderId' => $order->id,
+                'dailyOrderNumber' => $displayNumber,
+                'redirectUrl' => route('order.confirmation', $order->id),
+            ]);
         }
 
-        return redirect()->route('order.confirmation', $order->id)->with('success', 'Order placed successfully!');
+        return redirect()->route('order.confirmation', $order->id)->with('success', 'Order #' . $displayNumber . ' placed successfully!');
     }
 
     public function confirmation($orderId)
     {
-        $order = \App\Models\CustomerOrder::with('orderItems')->findOrFail($orderId);
+        $order = CustomerOrder::with(['orderItems', 'restaurantTable'])->findOrFail($orderId);
 
         return view('order.confirmation', [
             'order' => $order,
@@ -150,7 +175,7 @@ class OrderController extends Controller
             if ($quantity <= 0) {
                 unset($cart[$foodItemId]);
             } else {
-                $cart[$foodItemId]['quantity'] = min($quantity,99);
+                $cart[$foodItemId]['quantity'] = min($quantity, 99);
             }
         }
 
@@ -159,7 +184,6 @@ class OrderController extends Controller
         return response()->json(['cart' => $cart]);
     }
 
-    // trims text, returns null when empty, and cuts it to a maximum length
     private function cleanText($value, $max)
     {
         if (!is_scalar($value)) {

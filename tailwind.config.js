@@ -4,7 +4,15 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                primary: "##2e7d32", // your mockup green
+                primary: "#2e7d32",
+            },
+            fontFamily: {
+                sans: [
+                    '"Plus Jakarta Sans"',
+                    "ui-sans-serif",
+                    "system-ui",
+                    "sans-serif",
+                ],
             },
         },
     },

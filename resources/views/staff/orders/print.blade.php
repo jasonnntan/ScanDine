@@ -1,8 +1,11 @@
+@php
+    $displayNumber = $order->daily_order_number ?? $order->id;
+@endphp
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Kitchen ticket - Order #{{ $order->id }}</title>
+    <title>Kitchen ticket - Order #{{ $displayNumber }}</title>
     <style>
         body { font-family: monospace; width: 280px; margin: 0 auto; font-size: 14px; }
         h2 { text-align: center; margin-bottom: 2px; }
@@ -15,7 +18,7 @@
 </head>
 <body onload="window.print()">
     <h2>KITCHEN</h2>
-    <p class="center">Order #{{ $order->id }}</p>
+    <p class="center">Order #{{ $displayNumber }}</p>
     <p class="table-no">TABLE {{ $order->restaurantTable->table_number }}</p>
     <p class="center">{{ $order->created_at->format('d/m/Y H:i') }}</p>
     <hr>

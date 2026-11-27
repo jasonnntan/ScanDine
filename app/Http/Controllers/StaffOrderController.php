@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\CustomerOrder;
-use App\Models\Setting;
+use App\Models\OrderItem;
 use App\Models\RestaurantTable;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class StaffOrderController extends Controller
 {
-       public function index(Request $request)
+    public function index(Request $request)
     {
         $request->validate([
             'from' => 'nullable|date',
@@ -67,7 +68,7 @@ class StaffOrderController extends Controller
 
         if ($status === 'open') {
             $query->whereIn('order_status', ['pending', 'preparing', 'ready']);
-        } elseif (in_array($status, ['pending', 'preparing', 'ready', 'served', 'completed'])) {
+        } elseif (in_array($status, ['pending', 'preparing', 'ready', 'served', 'completed', 'cancelled'])) {
             $query->where('order_status', $status);
         } else {
             $status = 'all';
@@ -114,6 +115,10 @@ class StaffOrderController extends Controller
     {
         $order = CustomerOrder::findOrFail($id);
 
+        if ($order->order_status === 'cancelled') {
+            return redirect()->back()->with('error', 'Order #' . $order->id . ' is cancelled and cannot be changed.');
+        }
+
         $stages = ['pending', 'preparing', 'ready', 'served', 'completed'];
         $newStatus = $request->order_status;
 
@@ -149,12 +154,51 @@ class StaffOrderController extends Controller
     {
         $order = CustomerOrder::findOrFail($id);
 
+        if ($order->order_status === 'cancelled') {
+            return redirect()->back()->with('error', 'Order #' . $order->id . ' is cancelled and cannot be paid.');
+        }
+
         $order->update([
             'payment_status' => 'paid',
             'paid_at' => $order->paid_at ?? now(),
         ]);
 
         return redirect()->back()->with('success', 'Order marked as paid!');
+    }
+
+    public function cancel(Request $request, CustomerOrder $order)
+    {
+        $data = $request->validate([
+            'reason' => 'nullable|string|max:200',
+        ]);
+
+        if (!$order->canBeChanged()) {
+            return back()->with('error', "Order #{$order->id} is already paid, completed or cancelled, so it cannot be cancelled.");
+        }
+
+        $order->cancel(auth()->user()->name, $data['reason'] ?? null);
+
+        return back()->with('success', "Order #{$order->id} cancelled.");
+    }
+
+    public function removeItem(Request $request, CustomerOrder $order, OrderItem $item)
+    {
+        // the item must really belong to this order
+        abort_unless($item->customer_order_id === $order->id, 404);
+
+        $data = $request->validate([
+            'reason' => 'nullable|string|max:200',
+        ]);
+
+        if (!$order->canBeChanged()) {
+            return back()->with('error', "Order #{$order->id} can no longer be changed.");
+        }
+
+        if (!$order->removeItem($item, auth()->user()->name, $data['reason'] ?? null)) {
+            return back()->with('error', "This is the only item in order #{$order->id}. Cancel the order instead.");
+        }
+
+        return back()->with('success', "Item removed from order #{$order->id}.");
     }
 
     public function printTicket($id)

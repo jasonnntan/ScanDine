@@ -11,9 +11,7 @@ use App\Http\Controllers\TableController;
 use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::redirect('/', '/login');
 
 // after login, send each role to its first page
 Route::get('/dashboard', function () {
@@ -34,13 +32,11 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 // ---------- customer (no login needed) ----------
 Route::get('/order/{qr_token}', [OrderController::class, 'menu'])->name('order.menu');
 Route::post('/order/{qr_token}/add-to-cart', [OrderController::class, 'addToCart'])->name('order.addToCart');
-Route::get('/order/{qr_token}/cart', [OrderController::class, 'viewCart'])->name('order.viewCart');
 Route::get('/order/{qr_token}/cart-json', [OrderController::class, 'viewCartJson'])->name('order.viewCartJson');
 Route::post('/order/{qr_token}/update-cart-quantity', [OrderController::class, 'updateCartQuantity'])->name('order.updateCartQuantity');
 Route::post('/order/{qr_token}/remove-from-cart', [OrderController::class, 'removeFromCart'])->name('order.removeFromCart');
@@ -56,6 +52,8 @@ Route::middleware(['auth', 'role:staff,manager,owner'])->group(function () {
     Route::put('/staff/orders/{id}/paid', [StaffOrderController::class, 'markPaid'])->name('staff.orders.markPaid');
     Route::get('/staff/orders/{id}/print', [StaffOrderController::class, 'printTicket'])->name('staff.orders.print');
     Route::get('/staff/orders/{id}/receipt', [StaffOrderController::class, 'printReceipt'])->name('staff.orders.receipt');
+        Route::put('/staff/orders/{order}/cancel', [StaffOrderController::class, 'cancel'])->name('staff.orders.cancel');
+    Route::delete('/staff/orders/{order}/items/{item}', [StaffOrderController::class, 'removeItem'])->name('staff.orders.removeItem');
 
     // tables
     Route::get('/staff/tables', [TableController::class, 'index'])->name('staff.tables.index');
